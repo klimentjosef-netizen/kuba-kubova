@@ -64,8 +64,8 @@ export interface ContactInfo {
 export const contact: ContactInfo = {
   studioEmail: 'studio@kubakubova.cz',
   phone: '+420 777 000 000',
-  address: 'Českobratrská 14, 702 00 Ostrava',
-  addressShort: 'Českobratrská 14',
+  address: 'Bohumínská 442/51, 702 00 Ostrava',
+  addressShort: 'Bohumínská 442/51',
   city: '702 00 Ostrava',
   ic: '07490992',
 };
@@ -149,7 +149,7 @@ export const projects: Project[] = [
     location: 'Ostrava',
     year: 2023,
     area: 320,
-    photo: null, // photo: '/img/projekty/showroom-ostrava.jpg'
+    photo: '/img/projekty/detsky-pokoj-vizualizace.png',
   },
   {
     id: 'dum-v-beskydach',

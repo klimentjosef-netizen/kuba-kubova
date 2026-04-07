@@ -440,15 +440,15 @@ h1, h2, h3, h4 {
 }
 
 .blueprint-svg.bp-active .bp-line {
-  animation: draw-line var(--bp-draw-speed, 1.4s) cubic-bezier(0.4, 0, 0.2, 1) var(--bp-delay, 0s) forwards;
+  animation: draw-line var(--bp-draw-speed, 2.8s) cubic-bezier(0.25, 0.1, 0.25, 1) var(--bp-delay, 0s) forwards;
 }
 
 .blueprint-svg.bp-active .bp-circle {
-  animation: fade-in-stroke 0.8s ease var(--bp-delay, 0.5s) forwards;
+  animation: fade-in-stroke 1.5s ease var(--bp-delay, 0.5s) forwards;
 }
 
 .blueprint-svg.bp-active .bp-text {
-  animation: fade-in-stroke 0.6s ease var(--bp-delay, 1s) forwards;
+  animation: fade-in-stroke 1.2s ease var(--bp-delay, 1s) forwards;
 }
 
 /* Section wrapper for blueprint */
