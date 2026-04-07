@@ -12,7 +12,6 @@ import HeroBlueprintFull from '@/components/HeroBlueprintFull';
 export default function HomePage() {
   useScrollRevealAll();
 
-  const featured = projects.slice(0, 4);
 
   return (
     <>
@@ -112,22 +111,19 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div style={styles.projectGrid} className="reveal hero-grid">
-            {/* Row 1: hero card + stacked pair */}
-            <div style={styles.projectHero}>
-              <ProjectCard project={featured[0]} />
+          <div style={styles.projectGrid} className="reveal">
+            <div style={styles.projectBig}>
+              <ProjectCard project={projects[0]} />
             </div>
-            <div style={styles.projectStack}>
-              <ProjectCard project={featured[1]} />
-              <ProjectCard project={featured[2]} />
+            <div style={styles.projectSmall}>
+              <ProjectCard project={projects[1]} />
             </div>
-          </div>
-
-          {/* Row 2: three equal cards */}
-          <div style={styles.projectRow2} className="reveal project-grid">
-            <ProjectCard project={featured[3]} />
-            <ProjectCard project={projects[4]} />
-            <ProjectCard project={projects[5]} />
+            <div style={styles.projectSmall}>
+              <ProjectCard project={projects[3]} />
+            </div>
+            <div style={styles.projectBig}>
+              <ProjectCard project={projects[4]} />
+            </div>
           </div>
         </div>
       </section>
@@ -307,24 +303,15 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '48px',
   },
 
-  /* Project grid — asymmetric masonry */
+  /* Project grid — bento style */
   projectGrid: {
     display: 'grid',
-    gridTemplateColumns: '1.3fr 1fr',
-    gap: '24px',
-    marginBottom: '24px',
+    gridTemplateColumns: '1.4fr 1fr',
+    gridTemplateRows: 'auto auto',
+    gap: '16px',
   },
-  projectHero: {},
-  projectStack: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '24px',
-  },
-  projectRow2: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '24px',
-  },
+  projectBig: {},
+  projectSmall: {},
 
   /* Philosophy */
   philosophy: {
