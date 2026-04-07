@@ -29,10 +29,10 @@ export default function Nav() {
       <nav style={styles.nav}>
         <div className="container" style={styles.inner}>
           <Link href="/" style={styles.logo}>
-            <span style={styles.logoK}>K</span>
+            <span style={styles.logoName}>Kuba</span>
             <span style={styles.logoAmp}>&</span>
-            <span style={styles.logoK}>K</span>
-            <span style={styles.logoText}>Architekti</span>
+            <span style={styles.logoName}>Kubová</span>
+            <span style={styles.logoText}>studio</span>
           </Link>
 
           <div className="nav-links">
@@ -118,10 +118,10 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '2px',
     textDecoration: 'none',
   },
-  logoK: {
+  logoName: {
     fontFamily: 'var(--font-serif)',
-    fontSize: '28px',
-    fontWeight: 300,
+    fontSize: '20px',
+    fontWeight: 400,
     color: 'var(--ink)',
   },
   logoAmp: {

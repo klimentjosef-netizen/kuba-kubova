@@ -5,12 +5,12 @@ import Footer from '@/components/Footer';
 import Cursor from '@/components/Cursor';
 
 export const metadata: Metadata = {
-  title: 'Kuba & Kubová Architekti — Architektonické studio Ostrava',
+  title: 'Kuba&Kubová studio — Architektonické studio Ostrava',
   description:
     'Architektonické studio Michal Kuba & Kateřina Kubová. Rodinné domy, komerční stavby, interiéry a rekonstrukce. 18 let zkušeností v Ostravě.',
   keywords: 'architekti, Ostrava, rodinné domy, komerční stavby, interiéry, rekonstrukce, Michal Kuba, Kateřina Kubová',
   openGraph: {
-    title: 'Kuba & Kubová Architekti',
+    title: 'Kuba&Kubová studio',
     description: 'Stavby, které obstojí v čase.',
     locale: 'cs_CZ',
     type: 'website',

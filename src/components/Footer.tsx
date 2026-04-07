@@ -8,10 +8,10 @@ export default function Footer() {
         <div className="footer-top" style={styles.top}>
           <div>
             <div style={styles.logo}>
-              <span style={styles.logoK}>K</span>
+              <span style={styles.logoName}>Kuba</span>
               <span style={styles.logoAmp}>&</span>
-              <span style={styles.logoK}>K</span>
-              <span style={styles.logoText}>Architekti</span>
+              <span style={styles.logoName}>Kubová</span>
+              <span style={styles.logoText}>studio</span>
             </div>
             <p style={styles.address}>{contact.address}</p>
             <p style={styles.address}>IČ: {contact.ic}</p>
@@ -35,7 +35,7 @@ export default function Footer() {
 
         <div style={styles.bottom}>
           <p style={styles.copy}>
-            &copy; {new Date().getFullYear()} Kuba &amp; Kubová Architekti. Všechna práva vyhrazena.
+            &copy; {new Date().getFullYear()} Kuba&amp;Kubová studio. Všechna práva vyhrazena.
           </p>
         </div>
       </div>
@@ -63,10 +63,10 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '2px',
     marginBottom: '16px',
   },
-  logoK: {
+  logoName: {
     fontFamily: 'var(--font-serif)',
-    fontSize: '28px',
-    fontWeight: 300,
+    fontSize: '20px',
+    fontWeight: 400,
     color: 'var(--stone)',
   },
   logoAmp: {
