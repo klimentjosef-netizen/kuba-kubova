@@ -182,6 +182,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     gap: '16px',
     flexWrap: 'wrap' as const,
+    justifyContent: 'flex-end',
   },
   stats: {
     display: 'flex',
