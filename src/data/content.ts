@@ -119,7 +119,7 @@ export const projects: Project[] = [
     location: 'Ostrava',
     year: 2023,
     area: 380,
-    photo: null, // photo: '/img/projekty/vila-cerenec.jpg'
+    photo: '/img/projekty/vila-cerenec.jpg',
   },
   {
     id: 'centrum-zelena',
@@ -129,7 +129,7 @@ export const projects: Project[] = [
     location: 'Opava',
     year: 2022,
     area: 2400,
-    photo: null, // photo: '/img/projekty/centrum-zelena.jpg'
+    photo: '/img/projekty/centrum-zelena.jpg',
   },
   {
     id: 'bytovy-dum-pod-lipou',
@@ -139,16 +139,16 @@ export const projects: Project[] = [
     location: 'Frýdek-Místek',
     year: 2021,
     area: 1800,
-    photo: null, // photo: '/img/projekty/bytovy-dum-pod-lipou.jpg'
+    photo: '/img/projekty/bytovy-dum-pod-lipou.jpg',
   },
   {
-    id: 'showroom-ostrava',
-    name: 'Showroom Ostrava',
+    id: 'detsky-pokoj',
+    name: 'Dětský pokoj',
     category: 'interior',
     categoryLabel: 'Interiér',
     location: 'Ostrava',
     year: 2023,
-    area: 320,
+    area: 22,
     photo: '/img/projekty/detsky-pokoj-vizualizace.png',
   },
   {
@@ -159,7 +159,7 @@ export const projects: Project[] = [
     location: 'Trojanovice',
     year: 2020,
     area: 260,
-    photo: null, // photo: '/img/projekty/dum-v-beskydach.jpg'
+    photo: '/img/projekty/dum-v-beskydach.jpg',
   },
   {
     id: 'historicka-vila-privoz',
@@ -169,7 +169,7 @@ export const projects: Project[] = [
     location: 'Ostrava-Přívoz',
     year: 2019,
     area: 480,
-    photo: null, // photo: '/img/projekty/historicka-vila-privoz.jpg'
+    photo: '/img/projekty/historicka-vila-privoz.jpg',
   },
 ];
 
