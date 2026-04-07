@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#0f0f0d"/>
+  <text x="7" y="24" font-family="Georgia, serif" font-weight="300" font-size="22" fill="#8b6f47">K</text>
+  <line x1="3" y1="28" x2="29" y2="28" stroke="#8b6f47" stroke-width="0.5"/>
+</svg>
