@@ -158,7 +158,9 @@ const styles: Record<string, React.CSSProperties> = {
   heroContent: {
     position: 'relative' as const,
     zIndex: 1,
-    maxWidth: '780px',
+    maxWidth: '800px',
+    margin: '0 auto',
+    textAlign: 'center' as const,
   },
   heroTitle: {
     fontFamily: 'var(--font-serif)',
@@ -183,10 +185,10 @@ const styles: Record<string, React.CSSProperties> = {
   heroBottom: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '32px',
+    justifyContent: 'center',
+    gap: '48px',
     marginTop: '48px',
-    paddingTop: '24px',
+    paddingTop: '28px',
     borderTop: '0.5px solid rgba(15, 15, 13, 0.12)',
     flexWrap: 'wrap' as const,
   },
@@ -194,6 +196,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     gap: '16px',
     flexWrap: 'wrap' as const,
+    justifyContent: 'center',
   },
   stats: {
     display: 'flex',

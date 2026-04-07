@@ -52,7 +52,7 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9998;
+  z-index: 1;
   background-image:
     linear-gradient(rgba(15, 15, 13, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(15, 15, 13, 0.03) 1px, transparent 1px);
@@ -62,7 +62,7 @@ body::after {
 /* Hero clean background — no grid texture */
 .hero-clean {
   position: relative;
-  z-index: 9999;
+  z-index: 2;
   background: var(--stone);
 }
 
