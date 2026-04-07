@@ -281,6 +281,127 @@ h1, h2, h3, h4 {
   100% { transform: translateX(-50%); }
 }
 
+/* ----- Architect Drawing Animation ----- */
+@keyframes draw-line {
+  from { stroke-dashoffset: var(--path-length); }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-in-stroke {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes glow-up {
+  from { opacity: 0.15; }
+  to { opacity: 0.35; }
+}
+
+/* Building outlines — draw stroke */
+.draw-building {
+  stroke-dasharray: var(--path-length);
+  stroke-dashoffset: var(--path-length);
+  animation: draw-line var(--draw-duration, 1.2s) cubic-bezier(0.4, 0, 0.2, 1) var(--draw-delay, 0s) forwards;
+}
+
+/* Windows — fade in */
+.draw-window {
+  opacity: 0;
+  animation: fade-in-stroke 0.4s ease var(--win-delay, 1.5s) forwards;
+}
+
+/* Ground line */
+.draw-ground {
+  stroke-dasharray: var(--path-length);
+  stroke-dashoffset: var(--path-length);
+  animation: draw-line 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0s forwards;
+}
+
+/* Accent lines */
+.draw-accent {
+  stroke-dasharray: var(--path-length);
+  stroke-dashoffset: var(--path-length);
+  animation: draw-line 0.8s cubic-bezier(0.4, 0, 0.2, 1) var(--accent-delay, 2.5s) forwards;
+}
+
+/* Glow on building group after draw completes */
+.draw-glow {
+  opacity: 0.15;
+  animation: glow-up 1.5s ease 3s forwards;
+}
+
+/* Subtle section border reveal */
+.border-reveal {
+  position: relative;
+}
+
+.border-reveal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 0.5px;
+  width: 0;
+  background: var(--bronze);
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.border-reveal.revealed::after {
+  width: 100%;
+}
+
+/* Pill draw-in border */
+.pill-draw {
+  border-color: transparent;
+  transition: border-color 0.6s ease;
+}
+
+.revealed .pill-draw {
+  border-color: var(--slate);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .draw-building,
+  .draw-window,
+  .draw-ground,
+  .draw-accent,
+  .draw-glow {
+    animation: none !important;
+  }
+
+  .draw-building {
+    stroke-dashoffset: 0 !important;
+  }
+
+  .draw-window {
+    opacity: 1 !important;
+  }
+
+  .draw-ground {
+    stroke-dashoffset: 0 !important;
+  }
+
+  .draw-accent {
+    stroke-dashoffset: 0 !important;
+  }
+
+  .draw-glow {
+    opacity: 0.35 !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .border-reveal::after {
+    width: 100% !important;
+    transition: none !important;
+  }
+}
+
 /* ----- Project Card hover ----- */
 .project-card:hover .project-overlay {
   opacity: 1 !important;

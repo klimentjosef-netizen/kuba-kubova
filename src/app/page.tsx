@@ -39,7 +39,7 @@ export default function HomePage() {
 
           <div style={styles.heroRight}>
             <HeroIllustration />
-            <div style={styles.stats}>
+            <div style={styles.stats} className="border-reveal reveal">
               <div style={styles.stat}>
                 <span style={styles.statNum}>18</span>
                 <span style={styles.statLabel}>let zkušeností</span>
@@ -119,13 +119,13 @@ export default function HomePage() {
       {/* ===== PHILOSOPHY ===== */}
       <section style={styles.philosophy} className="reveal">
         <div className="container hero-grid" style={styles.philInner}>
-          <div style={styles.philQuote}>
+          <div style={styles.philQuote} className="reveal">
             <em style={styles.philQuoteText}>
               &ldquo;Architektura není jen o stavbách.<br />
               Je o životě, který se v nich odehrává.&rdquo;
             </em>
           </div>
-          <div style={styles.philValues}>
+          <div style={styles.philValues} className="reveal">
             {values.slice(0, 3).map((v) => (
               <div key={v.title} style={styles.philValue}>
                 <h3 style={styles.philValueTitle}>{v.title}</h3>
@@ -143,66 +143,141 @@ export default function HomePage() {
 }
 
 function HeroIllustration() {
+  // Building paths — each traces the outline as a single continuous stroke
+  // Path length calculated: perimeter of each building rectangle
+  const buildings = [
+    {
+      // Building 1: left, 120×300 starting at (40,80)
+      d: 'M 40 380 L 40 80 L 160 80 L 160 380',
+      length: 900, // 300 + 120 + 300
+      delay: 0.3,
+      duration: 1.2,
+    },
+    {
+      // Building 2: tall, 100×340 starting at (180,40)
+      d: 'M 180 380 L 180 40 L 280 40 L 280 380',
+      length: 980, // 340 + 100 + 340
+      delay: 0.6,
+      duration: 1.2,
+    },
+    {
+      // Building 3: wide, 140×260 starting at (300,120)
+      d: 'M 300 380 L 300 120 L 440 120 L 440 380',
+      length: 800, // 260 + 140 + 260
+      delay: 0.9,
+      duration: 1.2,
+    },
+    {
+      // Building 4: right, 80×320 starting at (460,60)
+      d: 'M 460 380 L 460 60 L 540 60 L 540 380',
+      length: 720, // 320 + 80 + 320
+      delay: 1.2,
+      duration: 1.2,
+    },
+  ];
+
+  // Windows for each building — [x, y, w, h]
+  const windowSets: { bIdx: number; x: number; y: number; w: number; h: number }[] = [];
+
+  // Building 1 windows (3 cols × 6 rows)
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 3; col++) {
+      windowSets.push({ bIdx: 0, x: 55 + col * 35, y: 100 + row * 45, w: 20, h: 28 });
+    }
+  }
+  // Building 2 windows (2 cols × 7 rows)
+  for (let row = 0; row < 7; row++) {
+    for (let col = 0; col < 2; col++) {
+      windowSets.push({ bIdx: 1, x: 195 + col * 45, y: 60 + row * 42, w: 24, h: 24 });
+    }
+  }
+  // Building 3 windows (4 cols × 5 rows)
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 4; col++) {
+      windowSets.push({ bIdx: 2, x: 312 + col * 30, y: 145 + row * 45, w: 18, h: 26 });
+    }
+  }
+  // Building 4 windows (2 cols × 6 rows)
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 2; col++) {
+      windowSets.push({ bIdx: 3, x: 470 + col * 30, y: 80 + row * 45, w: 16, h: 28 });
+    }
+  }
+
   return (
     <svg viewBox="0 0 560 420" style={{ width: '100%', height: 'auto' }}>
       <rect width="560" height="420" fill="#1a1917" />
-      <g opacity="0.2">
-        {/* Building silhouettes */}
-        <rect x="40" y="80" width="120" height="300" fill="none" stroke="#8b6f47" strokeWidth="0.5" />
-        <rect x="180" y="40" width="100" height="340" fill="none" stroke="#8b6f47" strokeWidth="0.5" />
-        <rect x="300" y="120" width="140" height="260" fill="none" stroke="#8b6f47" strokeWidth="0.5" />
-        <rect x="460" y="60" width="80" height="320" fill="none" stroke="#8b6f47" strokeWidth="0.5" />
 
-        {/* Window grids */}
-        {[0, 1, 2, 3, 4, 5].map((row) =>
-          [0, 1, 2].map((col) => (
+      <g className="draw-glow">
+        {/* Ground line — draws first */}
+        <line
+          x1="0" y1="380" x2="560" y2="380"
+          stroke="#c8b89a"
+          strokeWidth="0.5"
+          className="draw-ground"
+          style={{ '--path-length': 560 } as React.CSSProperties}
+        />
+
+        {/* Building outlines — staggered draw */}
+        {buildings.map((b, i) => (
+          <path
+            key={`bld-${i}`}
+            d={b.d}
+            fill="none"
+            stroke="#8b6f47"
+            strokeWidth="0.5"
+            strokeLinecap="square"
+            className="draw-building"
+            style={{
+              '--path-length': b.length,
+              '--draw-delay': `${b.delay}s`,
+              '--draw-duration': `${b.duration}s`,
+            } as React.CSSProperties}
+          />
+        ))}
+
+        {/* Windows — fade in after their building draws */}
+        {windowSets.map((w, i) => {
+          const buildingDoneAt = buildings[w.bIdx].delay + buildings[w.bIdx].duration * 0.6;
+          const winDelay = buildingDoneAt + i * 0.03;
+          return (
             <rect
-              key={`w1-${row}-${col}`}
-              x={55 + col * 35}
-              y={100 + row * 45}
-              width="20"
-              height="28"
+              key={`win-${i}`}
+              x={w.x}
+              y={w.y}
+              width={w.w}
+              height={w.h}
               fill="none"
               stroke="#c8b89a"
               strokeWidth="0.3"
+              className="draw-window"
+              style={{ '--win-delay': `${winDelay}s` } as React.CSSProperties}
             />
-          ))
-        )}
-        {[0, 1, 2, 3, 4, 5, 6].map((row) =>
-          [0, 1].map((col) => (
-            <rect
-              key={`w2-${row}-${col}`}
-              x={195 + col * 45}
-              y={60 + row * 42}
-              width="24"
-              height="24"
-              fill="none"
-              stroke="#c8b89a"
-              strokeWidth="0.3"
-            />
-          ))
-        )}
-        {[0, 1, 2, 3, 4].map((row) =>
-          [0, 1, 2, 3].map((col) => (
-            <rect
-              key={`w3-${row}-${col}`}
-              x={312 + col * 30}
-              y={145 + row * 45}
-              width="18"
-              height="26"
-              fill="none"
-              stroke="#c8b89a"
-              strokeWidth="0.3"
-            />
-          ))
-        )}
+          );
+        })}
 
-        {/* Ground line */}
-        <line x1="0" y1="380" x2="560" y2="380" stroke="#c8b89a" strokeWidth="0.5" />
-
-        {/* Accent lines */}
-        <line x1="180" y1="40" x2="280" y2="40" stroke="#8b6f47" strokeWidth="0.5" />
-        <line x1="460" y1="60" x2="540" y2="60" stroke="#8b6f47" strokeWidth="0.5" />
+        {/* Accent roof lines — draw last */}
+        <line
+          x1="180" y1="40" x2="280" y2="40"
+          stroke="#8b6f47"
+          strokeWidth="0.5"
+          className="draw-accent"
+          style={{ '--path-length': 100, '--accent-delay': '2.5s' } as React.CSSProperties}
+        />
+        <line
+          x1="460" y1="60" x2="540" y2="60"
+          stroke="#8b6f47"
+          strokeWidth="0.5"
+          className="draw-accent"
+          style={{ '--path-length': 80, '--accent-delay': '2.7s' } as React.CSSProperties}
+        />
+        <line
+          x1="300" y1="120" x2="440" y2="120"
+          stroke="#8b6f47"
+          strokeWidth="0.5"
+          className="draw-accent"
+          style={{ '--path-length': 140, '--accent-delay': '2.6s' } as React.CSSProperties}
+        />
       </g>
     </svg>
   );
@@ -256,7 +331,6 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '32px',
     marginTop: '32px',
     paddingTop: '24px',
-    borderTop: '0.5px solid rgba(15, 15, 13, 0.12)',
   },
   stat: {
     display: 'flex',
