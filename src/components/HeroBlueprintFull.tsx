@@ -266,56 +266,87 @@ export default function HeroBlueprintFull() {
     }
 
     // ═══════════════════════════════════════
-    // BUILDING D — Far right, slender tower
+    // BUILDING D — Right, wider with more detail
     // ═══════════════════════════════════════
-    const dL = 1350, dR = 1600, dT = 220, dB = 780;
-    addD(dL, dB, dL, dT, 1.8, 0.25);
-    addD(dR, dB, dR, dT + 15, 1.8, 0.25);
-    addD(dL, dT, dR, dT + 15, 1.4, 0.20);
-    add(dL, dB, dR, dB, 1.0, 0.14);
-    // Roof cap
-    addO(dL - 5, dT - 5, dR + 5, dT + 10, 1.0, 0.16);
+    const dL = 1340, dR = 1620, dT = 200, dB = 780;
+    addD(dL, dB, dL, dT, 2.0, 0.28);
+    addD(dR, dB, dR, dT + 15, 2.0, 0.28);
+    addD(dL, dT, dR, dT + 15, 1.6, 0.22);
+    addD(dL, dB, dR, dB, 1.2, 0.16);
+    // Roof overhang
+    addO(dL - 10, dT - 6, dR + 10, dT + 9, 1.2, 0.18);
     // Depth
-    toVP(dR, dT + 15, 0.18, 0.8, 0.10);
-    toVP(dR, dB, 0.15, 0.6, 0.08);
+    toVP(dR, dT + 15, 0.2, 1.0, 0.14);
+    toVP(dR, dB, 0.16, 0.7, 0.10);
+    const dRd = dR + (vx - dR) * 0.2;
+    const dTd = dT + 15 + (vy - dT - 15) * 0.2;
+    const dBd = dB + (vy - dB) * 0.16;
+    add(dRd, dTd, dRd, dBd, 0.6, 0.08);
 
-    // Floors
-    for (let i = 0; i < 14; i++) {
-      const y = dT + 18 + i * 40;
+    // Floor slabs
+    for (let i = 0; i < 15; i++) {
+      const y = dT + 18 + i * 38;
       if (y > dB - 5) break;
-      add(dL, y, dR, y + 1, i % 3 === 0 ? 0.8 : 0.3, i % 3 === 0 ? 0.14 : 0.05);
+      const isMajor = i % 3 === 0;
+      add(dL, y, dR, y + 1, isMajor ? 1.0 : 0.4, isMajor ? 0.18 : 0.06);
+      add(dR, y + 1, dRd, y + 1 + (vy - y) * 0.04, isMajor ? 0.5 : 0.2, isMajor ? 0.06 : 0.02);
+      if (isMajor) add(dL, y + 3, dR, y + 3, 0.3, 0.04);
     }
-    // Mullions
-    for (let i = 0; i < 6; i++) {
-      const x = dL + 22 + i * 42;
+    // Dense mullions
+    for (let i = 0; i < 8; i++) {
+      const x = dL + 18 + i * 35;
       if (x > dR - 10) break;
-      add(x, dT + 15, x, dB, 0.5, 0.09);
+      addD(x, dT + 15, x, dB, 0.5, 0.10);
     }
-    // Window crossbars
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 13; j++) {
-        const x = dL + 22 + i * 42;
-        const y = dT + 28 + j * 40;
+    // Window crossbars — denser
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 14; j++) {
+        const x = dL + 18 + i * 35;
+        const y = dT + 28 + j * 38 + 16;
         if (x > dR - 15 || y > dB - 10) continue;
-        if (rand() > 0.5) continue;
-        add(x, y, x + 38, y, 0.2, 0.03);
+        if (rand() > 0.55) continue;
+        add(x, y, x + 32, y, 0.2, 0.035);
       }
     }
+    // Balconies
+    for (let fl = 0; fl < 6; fl++) {
+      const ry = dT + 25 + fl * 3 * 38;
+      if (ry > dB - 30) break;
+      add(dL - 10, ry, dL, ry, 0.5, 0.08);
+      add(dL - 10, ry, dL - 10, ry + 16, 0.3, 0.05);
+      add(dL - 10, ry + 16, dL, ry + 16, 0.3, 0.05);
+    }
+    // Entrance
+    addD(dL + 80, dB, dL + 80, dB - 70, 1.2, 0.20);
+    addD(dL + 190, dB, dL + 190, dB - 70, 1.2, 0.20);
+    addD(dL + 75, dB - 70, dL + 195, dB - 70, 1.0, 0.18);
+    // Structural accents
+    for (let i = 0; i < 3; i++) {
+      const x = dL + 50 + i * 85;
+      if (x > dR - 30) break;
+      addD(x, dT + 10, x, dB, 0.8, 0.12);
+    }
 
     // ═══════════════════════════════════════
-    // BUILDING E — Background hint, far right
+    // BUILDING E — Background, far right
     // ═══════════════════════════════════════
-    add(1620, 780, 1620, 340, 1.0, 0.10);
-    add(1800, 780, 1800, 380, 1.0, 0.10);
-    add(1620, 340, 1800, 380, 0.8, 0.08);
-    for (let i = 0; i < 8; i++) {
-      const y = 390 + i * 50;
+    addD(1640, 780, 1640, 310, 1.2, 0.14);
+    addD(1840, 780, 1840, 360, 1.2, 0.14);
+    add(1640, 310, 1840, 360, 1.0, 0.12);
+    addO(1635, 305, 1845, 355, 0.8, 0.10);
+    // Floors
+    for (let i = 0; i < 10; i++) {
+      const y = 370 + i * 42;
       if (y > 770) break;
-      add(1620, y, 1800, y + 2, 0.3, 0.04);
+      add(1640, y, 1840, y + 2, i % 3 === 0 ? 0.6 : 0.25, i % 3 === 0 ? 0.10 : 0.04);
     }
-    for (let i = 0; i < 4; i++) {
-      add(1660 + i * 40, 345 + i * 5, 1660 + i * 40, 780, 0.25, 0.035);
+    // Mullions
+    for (let i = 0; i < 5; i++) {
+      add(1665 + i * 40, 315 + i * 5, 1665 + i * 40, 780, 0.4, 0.06);
     }
+    // Depth
+    toVP(1840, 360, 0.12, 0.5, 0.06);
+    toVP(1840, 780, 0.10, 0.4, 0.05);
 
     // ═══════════════════════════════════════
     // GROUND PLANE

@@ -103,8 +103,8 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: 1000,
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
-    backgroundColor: 'rgba(240, 237, 230, 0.85)',
-    borderBottom: '0.5px solid rgba(15, 15, 13, 0.08)',
+    backgroundColor: 'rgba(240, 237, 230, 0.95)',
+    borderBottom: '1px solid rgba(15, 15, 13, 0.08)',
   },
   inner: {
     display: 'flex',

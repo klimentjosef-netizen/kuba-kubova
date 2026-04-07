@@ -29,23 +29,25 @@ export default function HomePage() {
           <p style={styles.heroSub}>
             Michal staví na desetiletí. Kateřina na milimetry.
           </p>
-          <div style={styles.heroCtas}>
-            <Link href="/projekty" className="btn btn--filled">
-              Projekty
-            </Link>
-            <Link href="/o-nas" className="btn btn--bronze">
-              O nás
-            </Link>
-          </div>
-          <div style={styles.stats} className="border-reveal reveal">
-            <div style={styles.stat}>
-              <span style={styles.statNum}>18</span>
-              <span style={styles.statLabel}>let zkušeností</span>
+          <div style={styles.heroBottom}>
+            <div style={styles.stats}>
+              <div style={styles.stat}>
+                <span style={styles.statNum}>18</span>
+                <span style={styles.statLabel}>let zkušeností</span>
+              </div>
+              <div style={styles.statDivider} />
+              <div style={styles.stat}>
+                <span style={styles.statNum}>64</span>
+                <span style={styles.statLabel}>projektů</span>
+              </div>
             </div>
-            <div style={styles.statDivider} />
-            <div style={styles.stat}>
-              <span style={styles.statNum}>64</span>
-              <span style={styles.statLabel}>projektů</span>
+            <div style={styles.heroCtas}>
+              <Link href="/projekty" className="btn btn--filled">
+                Projekty
+              </Link>
+              <Link href="/o-nas" className="btn btn--bronze">
+                O nás
+              </Link>
             </div>
           </div>
         </div>
@@ -156,7 +158,7 @@ const styles: Record<string, React.CSSProperties> = {
   heroContent: {
     position: 'relative' as const,
     zIndex: 1,
-    maxWidth: '680px',
+    maxWidth: '780px',
   },
   heroTitle: {
     fontFamily: 'var(--font-serif)',
@@ -178,18 +180,25 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '40px',
     lineHeight: 1.6,
   },
+  heroBottom: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '32px',
+    marginTop: '48px',
+    paddingTop: '24px',
+    borderTop: '0.5px solid rgba(15, 15, 13, 0.12)',
+    flexWrap: 'wrap' as const,
+  },
   heroCtas: {
     display: 'flex',
     gap: '16px',
     flexWrap: 'wrap' as const,
-    justifyContent: 'flex-end',
   },
   stats: {
     display: 'flex',
     alignItems: 'center',
     gap: '32px',
-    marginTop: '32px',
-    paddingTop: '24px',
   },
   stat: {
     display: 'flex',
