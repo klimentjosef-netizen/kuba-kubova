@@ -3,9 +3,9 @@
 import { useEffect, useRef, useMemo } from 'react';
 
 /**
- * Full-viewport hand-drawn architectural floor plan.
- * Lines have gentle wobble (SVG path noise) and appear in
- * semi-random order — like watching an architect sketch.
+ * Architectural perspective sketch — raw, overlapping lines
+ * like a hand-drawn concept sketch of a modern building.
+ * Lines appear randomly with varying thickness and opacity.
  */
 export default function HeroBlueprintFull() {
   const ref = useRef<SVGSVGElement>(null);
@@ -13,280 +13,260 @@ export default function HeroBlueprintFull() {
   useEffect(() => {
     const svg = ref.current;
     if (!svg) return;
-    const timer = setTimeout(() => svg.classList.add('bp-active'), 600);
+    const timer = setTimeout(() => svg.classList.add('bp-active'), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // Stroke colors
-  const ink = 'rgba(15,15,13,0.20)';
-  const inkMed = 'rgba(15,15,13,0.14)';
-  const inkFine = 'rgba(15,15,13,0.09)';
-  const inkText = 'rgba(15,15,13,0.15)';
-
-  // ── HAND-DRAWN LINE: adds gentle wobble to straight lines ──
-  const handLine = (x1: number, y1: number, x2: number, y2: number, seed: number) => {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    const steps = Math.max(3, Math.floor(len / 40));
-    const points: string[] = [`M ${x1} ${y1}`];
-
-    for (let i = 1; i <= steps; i++) {
-      const t = i / steps;
-      const wobble = Math.sin(seed * 7 + i * 3.7) * 1.2 + Math.cos(seed * 13 + i * 2.3) * 0.8;
-      // Perpendicular offset
-      const nx = -dy / len * wobble;
-      const ny = dx / len * wobble;
-      const px = x1 + dx * t + nx;
-      const py = y1 + dy * t + ny;
-      points.push(`L ${px.toFixed(1)} ${py.toFixed(1)}`);
-    }
-
-    return { d: points.join(' '), len: Math.ceil(len * 1.05) };
-  };
-
-  // ── HAND-DRAWN RECTANGLE ──
-  const handRect = (x: number, y: number, w: number, h: number, seed: number) => {
-    const overshoot = 2; // lines slightly overshoot corners
-    const sides = [
-      handLine(x - overshoot * 0.3, y, x + w + overshoot * 0.5, y, seed),
-      handLine(x + w, y - overshoot * 0.3, x + w, y + h + overshoot * 0.5, seed + 1),
-      handLine(x + w + overshoot * 0.3, y + h, x - overshoot * 0.5, y + h, seed + 2),
-      handLine(x, y + h + overshoot * 0.3, x, y - overshoot * 0.5, seed + 3),
-    ];
-    return {
-      d: sides.map((s) => s.d).join(' '),
-      len: sides.reduce((sum, s) => sum + s.len, 0),
+  // Seeded pseudo-random for consistent renders
+  const seededRandom = (seed: number) => {
+    let s = seed;
+    return () => {
+      s = (s * 16807 + 7) % 2147483647;
+      return (s % 10000) / 10000;
     };
   };
 
-  // ── HELPER COMPONENTS ──
-  const HL = (x1: number, y1: number, x2: number, y2: number, delay: number, stroke = ink, width = 1, seed = 0, speed?: number) => {
-    const { d, len } = handLine(x1, y1, x2, y2, seed || delay * 17);
-    return <path d={d} fill="none" stroke={stroke} strokeWidth={width} strokeLinecap="round" className="bp-line" style={{ '--bp-len': len, '--bp-delay': `${delay}s`, ...(speed ? { '--bp-draw-speed': `${speed}s` } : {}) } as React.CSSProperties} />;
-  };
+  const lines = useMemo(() => {
+    const rand = seededRandom(42);
+    const result: {
+      x1: number; y1: number; x2: number; y2: number;
+      w: number; o: number; delay: number; speed: number;
+    }[] = [];
 
-  const HR = (x: number, y: number, w: number, h: number, delay: number, stroke = ink, width = 1, seed = 0, speed?: number) => {
-    const { d, len } = handRect(x, y, w, h, seed || delay * 13);
-    return <path d={d} fill="none" stroke={stroke} strokeWidth={width} strokeLinecap="round" className="bp-line" style={{ '--bp-len': len, '--bp-delay': `${delay}s`, ...(speed ? { '--bp-draw-speed': `${speed}s` } : {}) } as React.CSSProperties} />;
-  };
+    // ─── VANISHING POINT (slightly right of center, upper third) ───
+    const vx = 1050;
+    const vy = 340;
 
-  const C = (cx: number, cy: number, r: number, delay: number, stroke = ink, width = 1) => (
-    <circle cx={cx} cy={cy} r={r} fill="none" stroke={stroke} strokeWidth={width} className="bp-circle" style={{ '--bp-delay': `${delay}s` } as React.CSSProperties} />
-  );
+    // ─── HELPER: add a sketchy line with slight randomness ───
+    const addLine = (x1: number, y1: number, x2: number, y2: number, weight: number, opacity: number, timeSlot: number) => {
+      // Main line
+      result.push({
+        x1: x1 + (rand() - 0.5) * 3,
+        y1: y1 + (rand() - 0.5) * 3,
+        x2: x2 + (rand() - 0.5) * 3,
+        y2: y2 + (rand() - 0.5) * 3,
+        w: weight * (0.8 + rand() * 0.4),
+        o: opacity * (0.7 + rand() * 0.6),
+        delay: timeSlot + rand() * 2,
+        speed: 1.5 + rand() * 2.5,
+      });
 
-  const T = (x: number, y: number, text: string, delay: number, size = 11, anchor: 'start' | 'middle' | 'end' = 'middle', ls = 2) => (
-    <text x={x} y={y} textAnchor={anchor} fill={inkText} fontSize={size} fontFamily="Barlow, sans-serif" letterSpacing={ls} className="bp-text" style={{ '--bp-delay': `${delay}s` } as React.CSSProperties}>{text}</text>
-  );
+      // Overlap / construction line (lighter, slightly offset)
+      if (rand() > 0.3) {
+        const offsetX = (rand() - 0.5) * 6;
+        const offsetY = (rand() - 0.5) * 6;
+        result.push({
+          x1: x1 + offsetX, y1: y1 + offsetY,
+          x2: x2 + offsetX, y2: y2 + offsetY,
+          w: weight * 0.4,
+          o: opacity * 0.3,
+          delay: timeSlot + rand() * 1.5,
+          speed: 1.0 + rand() * 2,
+        });
+      }
 
-  // ── SHUFFLED TIMELINE ──
-  // Instead of logical order, create all sketch elements then shuffle their delays
-  // We'll use a seeded shuffle to keep it consistent across renders
+      // Overshoot line (extends past endpoints)
+      if (rand() > 0.5) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const ext = 0.08 + rand() * 0.15;
+        result.push({
+          x1: x1 - dx * ext * 0.5,
+          y1: y1 - dy * ext * 0.5,
+          x2: x2 + dx * ext,
+          y2: y2 + dy * ext,
+          w: weight * 0.25,
+          o: opacity * 0.2,
+          delay: timeSlot - 0.5 + rand() * 1,
+          speed: 0.8 + rand() * 1.5,
+        });
+      }
+    };
 
-  const ox = 300;
-  const oy = 200;
+    // ─── BUILDING 1: Modern box, left side ───
+    // Front face
+    addLine(200, 750, 200, 300, 1.8, 0.22, 0);   // left edge
+    addLine(200, 300, 700, 300, 1.5, 0.20, 1);    // top
+    addLine(700, 300, 700, 750, 1.8, 0.22, 0.5);  // right edge
+    addLine(200, 750, 700, 750, 1.2, 0.18, 1.5);  // bottom
 
-  // Pre-compute random delays: spread ~50 draw events across 16 seconds
-  // Group them loosely: structure first (0-6s), details (4-10s), labels (8-14s), annotations (11-16s)
-  // But within each group, order is randomized
-  const shuffle = (arr: number[], seed: number) => {
-    const result = [...arr];
-    let s = seed;
-    for (let i = result.length - 1; i > 0; i--) {
-      s = (s * 16807 + 7) % 2147483647;
-      const j = s % (i + 1);
-      [result[i], result[j]] = [result[j], result[i]];
+    // Perspective lines to vanishing point
+    addLine(200, 300, vx, vy, 0.8, 0.10, 2);
+    addLine(700, 300, vx + 100, vy - 10, 0.8, 0.10, 2.5);
+    addLine(200, 750, vx - 200, vy + 300, 0.5, 0.07, 3);
+    addLine(700, 750, vx, vy + 250, 0.5, 0.07, 3);
+
+    // Floor lines (horizontal slabs)
+    addLine(200, 450, 700, 450, 1.0, 0.15, 3);
+    addLine(200, 600, 700, 600, 1.0, 0.15, 3.5);
+    // Perspective floor lines
+    addLine(700, 450, vx + 50, vy + 50, 0.6, 0.08, 4);
+    addLine(700, 600, vx + 30, vy + 150, 0.6, 0.08, 4.5);
+
+    // Windows — vertical divisions
+    for (let i = 0; i < 5; i++) {
+      const x = 240 + i * 95;
+      addLine(x, 310, x, 440, 0.7, 0.12, 5 + rand() * 3);
+      addLine(x, 460, x, 590, 0.7, 0.12, 5.5 + rand() * 3);
+      addLine(x, 610, x, 740, 0.7, 0.12, 6 + rand() * 3);
     }
+
+    // Window horizontals
+    addLine(230, 375, 690, 375, 0.4, 0.08, 6);
+    addLine(230, 525, 690, 525, 0.4, 0.08, 6.5);
+    addLine(230, 675, 690, 675, 0.4, 0.08, 7);
+
+    // ─── BUILDING 2: Taller tower, right side ───
+    addLine(750, 750, 750, 150, 2.0, 0.25, 1);    // left edge
+    addLine(750, 150, 1100, 150, 1.5, 0.20, 2);   // top
+    addLine(1100, 150, 1100, 750, 1.8, 0.22, 1.5); // right edge
+    addLine(750, 750, 1100, 750, 1.0, 0.15, 2.5);  // bottom
+
+    // Perspective depth
+    addLine(1100, 150, 1350, 250, 1.0, 0.12, 3);
+    addLine(1100, 750, 1350, 700, 0.8, 0.10, 3.5);
+    addLine(1350, 250, 1350, 700, 0.8, 0.12, 4);
+
+    // Floor lines
+    for (let i = 0; i < 5; i++) {
+      const y = 250 + i * 105;
+      addLine(750, y, 1100, y, 0.8, 0.12, 4 + rand() * 3);
+      addLine(1100, y, 1350, y + 15 + i * 3, 0.4, 0.07, 5 + rand() * 2);
+    }
+
+    // Windows
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 3; col++) {
+        const wx = 790 + col * 100;
+        const wy = 170 + row * 105;
+        addLine(wx, wy, wx, wy + 70, 0.6, 0.10, 7 + rand() * 4);
+        addLine(wx, wy, wx + 60, wy, 0.5, 0.08, 7.5 + rand() * 4);
+        addLine(wx + 60, wy, wx + 60, wy + 70, 0.6, 0.10, 8 + rand() * 4);
+      }
+    }
+
+    // ─── GROUND / LANDSCAPE LINES ───
+    addLine(50, 750, 1800, 750, 1.5, 0.18, 0.5);
+    addLine(30, 760, 1850, 760, 0.6, 0.08, 1);
+    // Perspective ground lines
+    addLine(50, 750, vx - 200, vy + 200, 0.4, 0.06, 4);
+    addLine(1400, 750, vx + 200, vy + 200, 0.4, 0.06, 4.5);
+
+    // Ground hatching / texture
+    for (let i = 0; i < 12; i++) {
+      const sx = 100 + rand() * 1600;
+      addLine(sx, 755, sx + 40 + rand() * 80, 755 + rand() * 15, 0.3, 0.05, 8 + rand() * 5);
+    }
+
+    // ─── CANOPY / ENTRANCE DETAIL ───
+    addLine(350, 740, 550, 740, 1.5, 0.18, 6);
+    addLine(350, 740, 350, 720, 1.0, 0.15, 6.5);
+    addLine(550, 740, 550, 720, 1.0, 0.15, 6.5);
+    addLine(340, 720, 560, 720, 1.2, 0.16, 7);
+    // Canopy perspective
+    addLine(560, 720, 650, 700, 0.6, 0.08, 7.5);
+    addLine(340, 720, 300, 710, 0.6, 0.08, 7.5);
+
+    // ─── LOOSE CONSTRUCTION LINES (perspective grid) ───
+    // These are the light "thinking" lines architects draw first
+    for (let i = 0; i < 15; i++) {
+      const startX = rand() * 300;
+      const startY = 200 + rand() * 600;
+      addLine(startX, startY, vx + (rand() - 0.5) * 200, vy + (rand() - 0.5) * 100, 0.2, 0.04, rand() * 3);
+    }
+    for (let i = 0; i < 10; i++) {
+      const startX = 1200 + rand() * 600;
+      const startY = 200 + rand() * 600;
+      addLine(startX, startY, vx + (rand() - 0.5) * 200, vy + (rand() - 0.5) * 100, 0.2, 0.04, rand() * 4);
+    }
+
+    // ─── SKY / CONTEXT LINES ───
+    // Faint horizontal lines suggesting sky/horizon
+    addLine(0, 200, 500, 195, 0.2, 0.03, 10);
+    addLine(1300, 180, 1900, 185, 0.2, 0.03, 11);
+    addLine(0, 100, 400, 105, 0.15, 0.025, 12);
+
+    // ─── PEOPLE SILHOUETTES (simple lines) ───
+    // Figure 1
+    addLine(150, 750, 150, 715, 0.8, 0.12, 10);
+    addLine(145, 715, 155, 715, 0.5, 0.10, 10.5); // shoulders
+    addLine(150, 715, 150, 708, 0.6, 0.10, 10.5); // head
+    // Figure 2
+    addLine(1200, 750, 1200, 720, 0.7, 0.10, 11);
+    addLine(1195, 720, 1205, 720, 0.4, 0.08, 11.5);
+    // Figure 3
+    addLine(1250, 750, 1250, 718, 0.8, 0.12, 11);
+    addLine(1245, 718, 1255, 718, 0.5, 0.10, 11.5);
+
+    // ─── TREES (abstract scribbles) ───
+    for (let t = 0; t < 3; t++) {
+      const tx = 1400 + t * 120;
+      addLine(tx, 750, tx, 680, 0.6, 0.10, 9 + rand() * 3);
+      // Canopy scribbles
+      for (let s = 0; s < 5; s++) {
+        const angle = rand() * Math.PI * 2;
+        const r = 15 + rand() * 25;
+        addLine(
+          tx + Math.cos(angle) * r * 0.3,
+          680 - 10 + Math.sin(angle) * r * 0.3,
+          tx + Math.cos(angle) * r,
+          680 - 10 + Math.sin(angle) * r,
+          0.3, 0.06, 10 + rand() * 3,
+        );
+      }
+    }
+
     return result;
+  }, []);
+
+  // Generate hand-drawn path for each line
+  const handPath = (x1: number, y1: number, x2: number, y2: number, seed: number) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len < 2) return { d: `M ${x1} ${y1} L ${x2} ${y2}`, len: 2 };
+
+    const steps = Math.max(2, Math.floor(len / 30));
+    const pts: string[] = [`M ${x1.toFixed(1)} ${y1.toFixed(1)}`];
+
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      const wobble = Math.sin(seed * 7.3 + i * 4.1) * 1.5 + Math.cos(seed * 11 + i * 2.7) * 0.7;
+      const nx = -dy / len * wobble;
+      const ny = dx / len * wobble;
+      pts.push(`L ${(x1 + dx * t + nx).toFixed(1)} ${(y1 + dy * t + ny).toFixed(1)}`);
+    }
+
+    return { d: pts.join(' '), len: Math.ceil(len * 1.03) };
   };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const structureDelays = useMemo(() => shuffle(
-    Array.from({ length: 14 }, (_, i) => 0.5 + i * 0.45), 42
-  ), []);
-
-  const detailDelays = useMemo(() => shuffle(
-    Array.from({ length: 16 }, (_, i) => 5.0 + i * 0.35), 73
-  ), []);
-
-  const furnitureDelays = useMemo(() => shuffle(
-    Array.from({ length: 20 }, (_, i) => 8.0 + i * 0.3), 91
-  ), []);
-
-  const labelDelays = useMemo(() => shuffle(
-    Array.from({ length: 12 }, (_, i) => 11.0 + i * 0.35), 57
-  ), []);
-
-  let si = 0; // structure index
-  let di = 0; // detail index
-  let fi = 0; // furniture index
-  let li = 0; // label index
-
-  const sd = () => structureDelays[si++ % structureDelays.length];
-  const dd = () => detailDelays[di++ % detailDelays.length];
-  const fd = () => furnitureDelays[fi++ % furnitureDelays.length];
-  const ld = () => labelDelays[li++ % labelDelays.length];
 
   return (
     <svg
       ref={ref}
       className="blueprint-svg"
-      viewBox="0 0 1920 1080"
+      viewBox="0 0 1920 900"
       preserveAspectRatio="xMidYMid slice"
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
-
-      {/* ═══ STRUCTURE: walls, frame — random order within group ═══ */}
-
-      {/* Drawing frame */}
-      {HR(30, 30, 1860, 1020, sd(), inkMed, 0.6, 1, 5)}
-      {HR(50, 50, 1820, 980, sd(), inkFine, 0.4, 2, 4)}
-
-      {/* Outer walls — L-shape (split into segments for random order) */}
-      {HL(ox, oy, ox + 900, oy, sd(), ink, 2, 10, 3.5)}
-      {HL(ox + 900, oy, ox + 900, oy + 350, sd(), ink, 2, 11, 2.5)}
-      {HL(ox + 900, oy + 350, ox + 550, oy + 350, sd(), ink, 2, 12, 2)}
-      {HL(ox + 550, oy + 350, ox + 550, oy + 700, sd(), ink, 2, 13, 2.5)}
-      {HL(ox + 550, oy + 700, ox, oy + 700, sd(), ink, 2, 14, 3)}
-      {HL(ox, oy + 700, ox, oy, sd(), ink, 2, 15, 3.5)}
-
-      {/* Inner wall contour */}
-      {HL(ox + 12, oy + 12, ox + 888, oy + 12, sd(), ink, 1.2, 20, 3)}
-      {HL(ox + 888, oy + 12, ox + 888, oy + 338, sd(), ink, 1.2, 21, 2)}
-      {HL(ox + 888, oy + 338, ox + 538, oy + 338, sd(), ink, 1.2, 22, 2)}
-      {HL(ox + 538, oy + 338, ox + 538, oy + 688, sd(), ink, 1.2, 23, 2.5)}
-      {HL(ox + 538, oy + 688, ox + 12, oy + 688, sd(), ink, 1.2, 24, 3)}
-      {HL(ox + 12, oy + 688, ox + 12, oy + 12, sd(), ink, 1.2, 25, 3)}
-
-      {/* Interior walls — random order */}
-      {HL(ox + 350, oy + 12, ox + 350, oy + 250, sd(), ink, 1.3, 30)}
-      {HL(ox + 362, oy + 12, ox + 362, oy + 250, sd(), ink, 1.3, 31)}
-
-      {/* ═══ DETAILS: partitions, doors, windows — random order ═══ */}
-
-      {/* Hallway wall */}
-      {HL(ox + 12, oy + 350, ox + 538, oy + 350, dd(), ink, 1.3, 40)}
-      {HL(ox + 12, oy + 362, ox + 538, oy + 362, dd(), ink, 1.3, 41)}
-
-      {/* Bedroom divider */}
-      {HL(ox + 270, oy + 362, ox + 270, oy + 688, dd(), ink, 1.3, 42)}
-      {HL(ox + 282, oy + 362, ox + 282, oy + 688, dd(), ink, 1.3, 43)}
-
-      {/* Bathroom wall */}
-      {HL(ox + 350, oy + 500, ox + 538, oy + 500, dd(), ink, 1.3, 44)}
-      {HL(ox + 350, oy + 512, ox + 538, oy + 512, dd(), ink, 1.3, 45)}
-
-      {/* WC partition */}
-      {HL(ox + 350, oy + 362, ox + 350, oy + 500, dd(), ink, 1.3, 46)}
-      {HL(ox + 362, oy + 362, ox + 362, oy + 500, dd(), ink, 1.3, 47)}
-
-      {/* Study divider */}
-      {HL(ox + 650, oy + 12, ox + 650, oy + 338, dd(), ink, 1.3, 48)}
-      {HL(ox + 662, oy + 12, ox + 662, oy + 338, dd(), ink, 1.3, 49)}
-
-      {/* Doors — arcs */}
-      <path d={`M ${ox + 130} ${oy + 12} A 50 50 0 0 0 ${ox + 180} ${oy + 62}`} fill="none" stroke={inkMed} strokeWidth={0.7} className="bp-circle" style={{ '--bp-delay': `${dd()}s` } as React.CSSProperties} />
-      <path d={`M ${ox + 200} ${oy + 350} A 40 40 0 0 1 ${ox + 200} ${oy + 310}`} fill="none" stroke={inkMed} strokeWidth={0.7} className="bp-circle" style={{ '--bp-delay': `${dd()}s` } as React.CSSProperties} />
-      <path d={`M ${ox + 430} ${oy + 350} A 40 40 0 0 0 ${ox + 430} ${oy + 310}`} fill="none" stroke={inkMed} strokeWidth={0.7} className="bp-circle" style={{ '--bp-delay': `${dd()}s` } as React.CSSProperties} />
-      <path d={`M ${ox + 100} ${oy + 362} A 38 38 0 0 0 ${ox + 100} ${oy + 400}`} fill="none" stroke={inkMed} strokeWidth={0.7} className="bp-circle" style={{ '--bp-delay': `${dd()}s` } as React.CSSProperties} />
-      <path d={`M ${ox + 320} ${oy + 362} A 38 38 0 0 0 ${ox + 320} ${oy + 400}`} fill="none" stroke={inkMed} strokeWidth={0.7} className="bp-circle" style={{ '--bp-delay': `${dd()}s` } as React.CSSProperties} />
-      <path d={`M ${ox + 650} ${oy + 180} A 38 38 0 0 1 ${ox + 612} ${oy + 180}`} fill="none" stroke={inkMed} strokeWidth={0.7} className="bp-circle" style={{ '--bp-delay': `${dd()}s` } as React.CSSProperties} />
-
-      {/* ═══ FURNITURE + WINDOWS — random order ═══ */}
-
-      {/* Windows */}
-      {HL(ox + 80, oy + 690, ox + 160, oy + 690, fd(), inkMed, 2.2, 60)}
-      {HL(ox + 200, oy + 690, ox + 280, oy + 690, fd(), inkMed, 2.2, 61)}
-      {HL(ox + 400, oy + 2, ox + 500, oy + 2, fd(), inkMed, 2.2, 62)}
-      {HL(ox + 898, oy + 80, ox + 898, oy + 180, fd(), inkMed, 2.2, 63)}
-      {HL(ox + 2, oy + 450, ox + 2, oy + 550, fd(), inkMed, 2.2, 64)}
-      {HL(ox + 330, oy + 690, ox + 460, oy + 690, fd(), inkMed, 2.2, 65)}
-
-      {/* Sofa */}
-      {HR(ox + 40, oy + 420, 120, 45, fd(), inkFine, 0.6, 70)}
-      {HR(ox + 40, oy + 465, 120, 12, fd(), inkFine, 0.4, 71)}
-      {HR(ox + 70, oy + 500, 60, 35, fd(), inkFine, 0.5, 72)}
-
-      {/* Dining table + chairs */}
-      {HR(ox + 50, oy + 120, 80, 120, fd(), inkFine, 0.6, 73)}
-      {HR(ox + 30, oy + 130, 15, 20, fd(), inkFine, 0.4, 74)}
-      {HR(ox + 30, oy + 186, 15, 20, fd(), inkFine, 0.4, 75)}
-      {HR(ox + 135, oy + 130, 15, 20, fd(), inkFine, 0.4, 76)}
-      {HR(ox + 135, oy + 186, 15, 20, fd(), inkFine, 0.4, 77)}
-
-      {/* Kitchen counter */}
-      {HR(ox + 370, oy + 20, 160, 40, fd(), inkFine, 0.6, 78)}
-      {C(ox + 420, oy + 40, 10, fd(), inkFine, 0.5)}
-      {C(ox + 450, oy + 40, 10, fd(), inkFine, 0.5)}
-
-      {/* Beds */}
-      {HR(ox + 40, oy + 430, 100, 140, fd(), inkFine, 0.6, 80)}
-      {HR(ox + 300, oy + 430, 100, 140, fd(), inkFine, 0.6, 81)}
-
-      {/* Bathroom */}
-      {HR(ox + 370, oy + 530, 60, 140, fd(), inkFine, 0.6, 82)}
-      {C(ox + 500, oy + 560, 12, fd(), inkFine, 0.5)}
-
-      {/* Study desk */}
-      {HR(ox + 680, oy + 40, 180, 60, fd(), inkFine, 0.6, 83)}
-      {C(ox + 770, oy + 130, 14, fd(), inkFine, 0.5)}
-
-      {/* Guest bed */}
-      {HR(ox + 700, oy + 200, 80, 120, fd(), inkFine, 0.6, 84)}
-
-      {/* Stairs */}
-      {Array.from({ length: 8 }, (_, i) => (
-        HL(ox + 400, oy + 370 + i * 15, ox + 530, oy + 370 + i * 15, fd(), inkFine, 0.5, 90 + i)
-      ))}
-
-      {/* ═══ LABELS — random order ═══ */}
-      {T(ox + 170, oy + 175, 'OBÝVACÍ POKOJ', ld(), 12, 'middle', 3)}
-      {T(ox + 170, oy + 195, '32.4 m²', ld(), 9, 'middle', 1)}
-      {T(ox + 500, oy + 175, 'KUCHYNĚ', ld(), 12, 'middle', 3)}
-      {T(ox + 135, oy + 560, 'LOŽNICE', ld(), 11, 'middle', 3)}
-      {T(ox + 400, oy + 560, 'DĚTSKÝ POKOJ', ld(), 10, 'middle', 3)}
-      {T(ox + 460, oy + 660, 'KOUPELNA', ld(), 9, 'middle', 3)}
-      {T(ox + 770, oy + 100, 'PRACOVNA', ld(), 11, 'middle', 3)}
-      {T(ox + 770, oy + 280, 'POKOJ PRO HOSTY', ld(), 10, 'middle', 3)}
-      {T(ox + 465, oy + 435, 'CHODBA', ld(), 9, 'middle', 2)}
-
-      {/* Dimensions */}
-      {HL(ox, oy - 55, ox + 900, oy - 55, ld(), inkMed, 0.6, 100)}
-      {T(ox + 450, oy - 63, '18 000', ld(), 9)}
-      {HL(ox - 55, oy, ox - 55, oy + 700, ld(), inkMed, 0.6, 101)}
-      {T(ox - 70, oy + 350, '14 000', ld(), 9, 'middle', 1)}
-
-      {/* ═══ ANNOTATIONS — last, also randomized ═══ */}
-
-      {/* Axes */}
-      {[ox, ox + 350, ox + 550, ox + 900].map((x, i) => (
-        <g key={`va-${i}`}>
-          {HL(x, oy - 85, x, oy - 40, 13.0 + i * 0.3, inkFine, 0.4, 110 + i)}
-          {C(x, oy - 95, 11, 13.5 + i * 0.3, inkMed, 0.5)}
-          {T(x, oy - 91, String.fromCharCode(65 + i), 14.0 + i * 0.2, 8, 'middle', 0)}
-        </g>
-      ))}
-
-      {/* North arrow */}
-      {HL(1680, 200, 1680, 115, 13.5, ink, 1, 120)}
-      {T(1680, 90, 'S', 14.2, 13, 'middle', 0)}
-      {C(1680, 200, 32, 13.8, inkMed, 0.6)}
-
-      {/* Title block */}
-      {HR(1380, 860, 470, 160, 14.0, inkMed, 0.8, 130, 3)}
-      {HL(1380, 905, 1850, 905, 14.3, inkFine, 0.4, 131)}
-      {HL(1380, 945, 1850, 945, 14.5, inkFine, 0.4, 132)}
-      {T(1615, 892, 'KUBA & KUBOVÁ ARCHITEKTI', 14.8, 12, 'middle', 4)}
-      {T(1615, 932, 'PŮDORYS 1.NP — RODINNÝ DŮM', 15.0, 9, 'middle', 3)}
-      {T(1500, 968, 'M 1:100', 15.2, 8, 'middle', 2)}
-      {T(1730, 968, '03/2024', 15.3, 8, 'middle', 1)}
-
-      {/* Scale bar */}
-      {HL(1400, 800, 1700, 800, 14.5, inkMed, 0.7, 140)}
-      {T(1400, 818, '0', 15.0, 7, 'middle', 0)}
-      {T(1550, 818, '5m', 15.1, 7, 'middle', 1)}
-      {T(1700, 818, '10m', 15.2, 7, 'middle', 1)}
-
+      {lines.map((line, i) => {
+        const { d, len } = handPath(line.x1, line.y1, line.x2, line.y2, i * 7 + 13);
+        return (
+          <path
+            key={i}
+            d={d}
+            fill="none"
+            stroke={`rgba(15,15,13,${line.o.toFixed(3)})`}
+            strokeWidth={line.w}
+            strokeLinecap="round"
+            className="bp-line"
+            style={{
+              '--bp-len': len,
+              '--bp-delay': `${line.delay.toFixed(2)}s`,
+              '--bp-draw-speed': `${line.speed.toFixed(2)}s`,
+            } as React.CSSProperties}
+          />
+        );
+      })}
     </svg>
   );
 }
