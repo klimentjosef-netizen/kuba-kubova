@@ -66,7 +66,7 @@ const styles: Record<string, React.CSSProperties> = {
   title: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(42px, 5vw, 64px)',
-    fontWeight: 300,
+    fontWeight: 400,
     marginBottom: '20px',
   },
   subtitle: {

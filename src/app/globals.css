@@ -2,7 +2,7 @@
    Kuba & Kubová Architekti — Global Styles
    =========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Barlow:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500&display=swap');
 
 /* ----- CSS Variables ----- */
 :root {
@@ -14,8 +14,8 @@
   --plaster: #e8e3da;
   --cream: #f8f5ee;
 
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-sans: 'Barlow', -apple-system, Helvetica Neue, sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Space Grotesk', -apple-system, Helvetica Neue, sans-serif;
 
   --max-width: 1340px;
   --nav-height: 72px;
@@ -95,7 +95,7 @@ ul, ol {
 /* ----- Typography ----- */
 h1, h2, h3, h4 {
   font-family: var(--font-serif);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.1;
 }
 

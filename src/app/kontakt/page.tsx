@@ -211,7 +211,7 @@ const styles: Record<string, React.CSSProperties> = {
   heroTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(42px, 5vw, 72px)',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--stone)',
     lineHeight: 1.05,
   },
@@ -266,7 +266,7 @@ const styles: Record<string, React.CSSProperties> = {
   formTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: '36px',
-    fontWeight: 300,
+    fontWeight: 400,
     marginBottom: '12px',
   },
   formSub: {
@@ -317,7 +317,7 @@ const styles: Record<string, React.CSSProperties> = {
   successTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: '28px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--bronze)',
     marginBottom: '12px',
   },
@@ -337,7 +337,7 @@ const styles: Record<string, React.CSSProperties> = {
   detailsTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: '28px',
-    fontWeight: 300,
+    fontWeight: 400,
     marginBottom: '32px',
   },
   detailSection: {

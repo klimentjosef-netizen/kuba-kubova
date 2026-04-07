@@ -120,7 +120,7 @@ const styles: Record<string, React.CSSProperties> = {
   overlayName: {
     fontFamily: 'var(--font-serif)',
     fontSize: '24px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: '#fff',
   },
   meta: {
@@ -139,7 +139,7 @@ const styles: Record<string, React.CSSProperties> = {
   name: {
     fontFamily: 'var(--font-serif)',
     fontSize: '22px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--ink)',
     marginBottom: '4px',
   },

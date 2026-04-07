@@ -72,7 +72,7 @@ const styles: Record<string, React.CSSProperties> = {
   logoAmp: {
     fontFamily: 'var(--font-serif)',
     fontSize: '18px',
-    fontWeight: 300,
+    fontWeight: 400,
     fontStyle: 'italic',
     color: 'var(--bronze)',
     margin: '0 2px',

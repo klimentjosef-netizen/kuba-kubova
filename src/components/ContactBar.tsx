@@ -48,7 +48,7 @@ const styles: Record<string, React.CSSProperties> = {
   headline: {
     fontFamily: 'var(--font-serif)',
     fontSize: '32px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--stone)',
   },
   info: {

@@ -162,7 +162,7 @@ const styles: Record<string, React.CSSProperties> = {
   heroTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(36px, 4vw, 56px)',
-    fontWeight: 300,
+    fontWeight: 400,
     marginBottom: '32px',
     lineHeight: 1.1,
   },
@@ -178,7 +178,7 @@ const styles: Record<string, React.CSSProperties> = {
   heroQuote: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(28px, 3.5vw, 42px)',
-    fontWeight: 300,
+    fontWeight: 400,
     fontStyle: 'italic',
     color: 'var(--stone)',
     lineHeight: 1.3,
@@ -209,7 +209,7 @@ const styles: Record<string, React.CSSProperties> = {
   founderName: {
     fontFamily: 'var(--font-serif)',
     fontSize: '58px',
-    fontWeight: 300,
+    fontWeight: 400,
     lineHeight: 1.05,
     marginBottom: '8px',
   },
@@ -253,7 +253,7 @@ const styles: Record<string, React.CSSProperties> = {
   sectionTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(32px, 4vw, 48px)',
-    fontWeight: 300,
+    fontWeight: 400,
     marginBottom: '48px',
   },
   timelineGrid: {
@@ -268,7 +268,7 @@ const styles: Record<string, React.CSSProperties> = {
   timelineYear: {
     fontFamily: 'var(--font-serif)',
     fontSize: '36px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--bronze)',
     display: 'block',
     marginBottom: '12px',
@@ -308,7 +308,7 @@ const styles: Record<string, React.CSSProperties> = {
   valuesQuote: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(24px, 3vw, 36px)',
-    fontWeight: 300,
+    fontWeight: 400,
     fontStyle: 'italic',
     color: 'var(--stone)',
     lineHeight: 1.4,

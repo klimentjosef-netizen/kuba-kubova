@@ -161,7 +161,7 @@ const styles: Record<string, React.CSSProperties> = {
   heroTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(42px, 5vw, 72px)',
-    fontWeight: 300,
+    fontWeight: 400,
     lineHeight: 1.05,
     color: 'var(--ink)',
     marginBottom: '24px',
@@ -198,7 +198,7 @@ const styles: Record<string, React.CSSProperties> = {
   statNum: {
     fontFamily: 'var(--font-serif)',
     fontSize: '42px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--ink)',
     lineHeight: 1,
   },
@@ -237,7 +237,7 @@ const styles: Record<string, React.CSSProperties> = {
   founderName: {
     fontFamily: 'var(--font-serif)',
     fontSize: '58px',
-    fontWeight: 300,
+    fontWeight: 400,
     lineHeight: 1.05,
     marginBottom: '8px',
   },
@@ -268,7 +268,7 @@ const styles: Record<string, React.CSSProperties> = {
   sectionTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(32px, 4vw, 48px)',
-    fontWeight: 300,
+    fontWeight: 400,
     marginBottom: '48px',
   },
 
@@ -291,7 +291,7 @@ const styles: Record<string, React.CSSProperties> = {
   moreNum: {
     fontFamily: 'var(--font-serif)',
     fontSize: '48px',
-    fontWeight: 300,
+    fontWeight: 400,
     color: 'var(--ink)',
     lineHeight: 1,
   },
@@ -323,7 +323,7 @@ const styles: Record<string, React.CSSProperties> = {
   philQuoteText: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(24px, 3vw, 36px)',
-    fontWeight: 300,
+    fontWeight: 400,
     fontStyle: 'italic',
     color: 'var(--cream)',
     lineHeight: 1.4,
