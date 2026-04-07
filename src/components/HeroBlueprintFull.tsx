@@ -3,9 +3,8 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Full-viewport architectural technical drawing for the hero section.
- * Draws a complete building facade elevation with axes, dimensions,
- * annotations, and a title block — all animated via stroke-dasharray.
+ * Full-viewport architectural floor plan drawing for the hero.
+ * Bold black lines, clearly visible — like watching an architect sketch.
  */
 export default function HeroBlueprintFull() {
   const ref = useRef<SVGSVGElement>(null);
@@ -13,83 +12,42 @@ export default function HeroBlueprintFull() {
   useEffect(() => {
     const svg = ref.current;
     if (!svg) return;
-    // Activate immediately (hero is always in viewport on load)
     requestAnimationFrame(() => svg.classList.add('bp-active'));
   }, []);
 
-  const s = 'rgba(139,111,71,0.09)';   // main stroke
-  const sf = 'rgba(107,100,86,0.06)';   // fine/subtle stroke
-  const t = 'rgba(107,100,86,0.08)';    // text fill
+  // Bold, visible strokes — black ink on paper
+  const ink = 'rgba(15,15,13,0.18)';      // main walls
+  const inkMed = 'rgba(15,15,13,0.13)';    // secondary lines
+  const inkFine = 'rgba(15,15,13,0.08)';   // dimensions, grid
+  const inkText = 'rgba(15,15,13,0.14)';   // text labels
 
-  // Helper for line with draw animation
-  const L = (x1: number, y1: number, x2: number, y2: number, delay: number, stroke = s, width = 0.5, dash?: string) => {
-    const len = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-    return (
-      <line
-        x1={x1} y1={y1} x2={x2} y2={y2}
-        stroke={stroke} strokeWidth={width}
-        strokeDasharray={dash}
-        className="bp-line"
-        style={{ '--bp-len': Math.ceil(len), '--bp-delay': `${delay}s` } as React.CSSProperties}
-      />
-    );
+  // ── HELPERS ──
+  const L = (x1: number, y1: number, x2: number, y2: number, delay: number, stroke = ink, width = 1, dash?: string) => {
+    const len = Math.ceil(Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2));
+    return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={width} strokeDasharray={dash} className="bp-line" style={{ '--bp-len': len, '--bp-delay': `${delay}s` } as React.CSSProperties} />;
   };
 
-  // Helper for rectangle path
-  const R = (x: number, y: number, w: number, h: number, delay: number, stroke = s, width = 0.5) => {
-    const len = 2 * (w + h);
-    return (
-      <rect
-        x={x} y={y} width={w} height={h}
-        fill="none" stroke={stroke} strokeWidth={width}
-        className="bp-line"
-        style={{ '--bp-len': Math.ceil(len), '--bp-delay': `${delay}s` } as React.CSSProperties}
-      />
-    );
-  };
-
-  // Helper for text
-  const T = (x: number, y: number, text: string, delay: number, size = 9, anchor: 'start' | 'middle' | 'end' = 'middle', ls = 2) => (
-    <text
-      x={x} y={y} textAnchor={anchor} fill={t}
-      fontSize={size} fontFamily="Barlow, sans-serif" letterSpacing={ls}
-      className="bp-text"
-      style={{ '--bp-delay': `${delay}s` } as React.CSSProperties}
-    >
-      {text}
-    </text>
+  const P = (d: string, len: number, delay: number, stroke = ink, width = 1) => (
+    <path d={d} fill="none" stroke={stroke} strokeWidth={width} strokeLinecap="square" className="bp-line" style={{ '--bp-len': len, '--bp-delay': `${delay}s` } as React.CSSProperties} />
   );
 
-  // Helper for circle
-  const C = (cx: number, cy: number, r: number, delay: number, stroke = s, width = 0.5) => (
-    <circle
-      cx={cx} cy={cy} r={r}
-      fill="none" stroke={stroke} strokeWidth={width}
-      className="bp-circle"
-      style={{ '--bp-delay': `${delay}s` } as React.CSSProperties}
-    />
+  const R = (x: number, y: number, w: number, h: number, delay: number, stroke = ink, width = 1) => (
+    <rect x={x} y={y} width={w} height={h} fill="none" stroke={stroke} strokeWidth={width} className="bp-line" style={{ '--bp-len': Math.ceil(2 * (w + h)), '--bp-delay': `${delay}s` } as React.CSSProperties} />
   );
 
-  // ── LAYOUT CONSTANTS ──
-  // Drawing area: buildings centered around x=960
-  const groundY = 780;
-  const axisTopY = 160;
+  const C = (cx: number, cy: number, r: number, delay: number, stroke = ink, width = 1) => (
+    <circle cx={cx} cy={cy} r={r} fill="none" stroke={stroke} strokeWidth={width} className="bp-circle" style={{ '--bp-delay': `${delay}s` } as React.CSSProperties} />
+  );
 
-  // 3 buildings
-  const bldgs = [
-    { x: 480, w: 280, h: 420, label: 'A' }, // left building, 3-story
-    { x: 780, w: 340, h: 520, label: 'B' }, // center tall
-    { x: 1140, w: 240, h: 360, label: 'C' }, // right shorter
-  ];
+  const T = (x: number, y: number, text: string, delay: number, size = 11, anchor: 'start' | 'middle' | 'end' = 'middle', ls = 2) => (
+    <text x={x} y={y} textAnchor={anchor} fill={inkText} fontSize={size} fontFamily="Barlow, sans-serif" letterSpacing={ls} className="bp-text" style={{ '--bp-delay': `${delay}s` } as React.CSSProperties}>{text}</text>
+  );
 
-  // Windows config per building
-  const winConfigs = [
-    { cols: 4, rows: 5, ww: 28, wh: 36, gx: 55, gy: 65, padX: 35, padY: 50 },
-    { cols: 5, rows: 7, ww: 30, wh: 34, gx: 52, gy: 60, padX: 40, padY: 45 },
-    { cols: 3, rows: 4, ww: 32, wh: 40, gx: 62, gy: 68, padX: 30, padY: 50 },
-  ];
-
-  let winIdx = 0;
+  // ── FLOOR PLAN LAYOUT ──
+  // Main house: L-shaped plan, ~18m x 14m
+  // Origin at (300, 200), scale: 1m ≈ 50px
+  const ox = 300; // origin x
+  const oy = 200; // origin y
 
   return (
     <svg
@@ -97,249 +55,286 @@ export default function HeroBlueprintFull() {
       className="blueprint-svg"
       viewBox="0 0 1920 1080"
       preserveAspectRatio="xMidYMid slice"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-      }}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
-      {/* ════════ DRAWING SHEET FRAME ════════ */}
-      {R(40, 40, 1840, 1000, 0, s, 0.4)}
-      {R(60, 60, 1800, 960, 0.1, sf, 0.3)}
 
-      {/* Corner registration crosses */}
-      {[[40, 40], [1880, 40], [40, 1040], [1880, 1040]].map(([cx, cy], i) => (
-        <g key={`reg-${i}`}>
-          {L(cx - 15, cy, cx + 15, cy, 0.15 + i * 0.05, s, 0.3)}
-          {L(cx, cy - 15, cx, cy + 15, 0.2 + i * 0.05, s, 0.3)}
+      {/* ════════ DRAWING FRAME ════════ */}
+      {R(30, 30, 1860, 1020, 0, inkMed, 0.8)}
+      {R(50, 50, 1820, 980, 0.1, inkFine, 0.5)}
+
+      {/* ════════ MAIN OUTER WALLS ════════ */}
+      {/* L-shaped floor plan — thick walls (double line) */}
+      {/* Outer contour */}
+      {P(`M ${ox} ${oy} L ${ox + 900} ${oy} L ${ox + 900} ${oy + 350} L ${ox + 550} ${oy + 350} L ${ox + 550} ${oy + 700} L ${ox} ${oy + 700} Z`, 3500, 0.2, ink, 2)}
+      {/* Inner contour (wall thickness ~12px = ~24cm) */}
+      {P(`M ${ox + 12} ${oy + 12} L ${ox + 888} ${oy + 12} L ${ox + 888} ${oy + 338} L ${ox + 538} ${oy + 338} L ${ox + 538} ${oy + 688} L ${ox + 12} ${oy + 688} Z`, 3400, 0.4, ink, 1.5)}
+
+      {/* ════════ INTERIOR WALLS ════════ */}
+      {/* Kitchen / Living divider — partial wall */}
+      {L(ox + 350, oy + 12, ox + 350, oy + 250, 0.8, ink, 1.5)}
+      {L(ox + 362, oy + 12, ox + 362, oy + 250, 0.85, ink, 1.5)}
+
+      {/* Hallway wall horizontal */}
+      {L(ox + 12, oy + 350, ox + 538, oy + 350, 0.9, ink, 1.5)}
+      {L(ox + 12, oy + 362, ox + 538, oy + 362, 0.95, ink, 1.5)}
+
+      {/* Bedroom 1 / Bedroom 2 divider */}
+      {L(ox + 270, oy + 362, ox + 270, oy + 688, 1.0, ink, 1.5)}
+      {L(ox + 282, oy + 362, ox + 282, oy + 688, 1.05, ink, 1.5)}
+
+      {/* Bathroom wall */}
+      {L(ox + 350, oy + 500, ox + 538, oy + 500, 1.1, ink, 1.5)}
+      {L(ox + 350, oy + 512, ox + 538, oy + 512, 1.15, ink, 1.5)}
+
+      {/* WC wall */}
+      {L(ox + 350, oy + 362, ox + 350, oy + 500, 1.2, ink, 1.5)}
+      {L(ox + 362, oy + 362, ox + 362, oy + 500, 1.25, ink, 1.5)}
+
+      {/* Upper right room divider (study / guest) */}
+      {L(ox + 650, oy + 12, ox + 650, oy + 338, 1.1, ink, 1.5)}
+      {L(ox + 662, oy + 12, ox + 662, oy + 338, 1.15, ink, 1.5)}
+
+      {/* ════════ DOORS (arc + opening) ════════ */}
+      {/* Front door */}
+      {R(ox + 130, oy - 5, 50, 17, 1.3, ink, 1.2)}
+      <path d={`M ${ox + 130} ${oy + 12} A 50 50 0 0 0 ${ox + 180} ${oy + 62}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.5s' } as React.CSSProperties} />
+
+      {/* Living room to hallway */}
+      <path d={`M ${ox + 200} ${oy + 350} A 40 40 0 0 1 ${ox + 200} ${oy + 310}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.6s' } as React.CSSProperties} />
+
+      {/* Kitchen to hallway */}
+      <path d={`M ${ox + 430} ${oy + 350} A 40 40 0 0 0 ${ox + 430} ${oy + 310}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.65s' } as React.CSSProperties} />
+
+      {/* Bedroom 1 door */}
+      <path d={`M ${ox + 100} ${oy + 362} A 38 38 0 0 0 ${ox + 100} ${oy + 400}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.7s' } as React.CSSProperties} />
+
+      {/* Bedroom 2 door */}
+      <path d={`M ${ox + 320} ${oy + 362} A 38 38 0 0 0 ${ox + 320} ${oy + 400}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.75s' } as React.CSSProperties} />
+
+      {/* Bathroom door */}
+      <path d={`M ${ox + 400} ${oy + 512} A 35 35 0 0 1 ${ox + 435} ${oy + 512}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.8s' } as React.CSSProperties} />
+
+      {/* Study door */}
+      <path d={`M ${ox + 650} ${oy + 180} A 38 38 0 0 1 ${ox + 612} ${oy + 180}`} fill="none" stroke={inkMed} strokeWidth={0.8} className="bp-circle" style={{ '--bp-delay': '1.85s' } as React.CSSProperties} />
+
+      {/* ════════ WINDOWS (thick marks in walls) ════════ */}
+      {/* Living room windows — south wall */}
+      {[80, 200].map((xo, i) => (
+        <g key={`wlr-${i}`}>
+          {L(ox + xo, oy + 688, ox + xo + 80, oy + 688, 1.8 + i * 0.1, inkMed, 2.5)}
+          {L(ox + xo, oy + 700, ox + xo + 80, oy + 700, 1.85 + i * 0.1, inkMed, 0.6)}
+          {L(ox + xo + 40, oy + 688, ox + xo + 40, oy + 700, 1.9 + i * 0.1, inkFine, 0.5)}
         </g>
       ))}
 
-      {/* ════════ GRID AXIS SYSTEM ════════ */}
-      {/* Vertical axes (A–E) at building boundaries */}
-      {[480, 760, 780, 1120, 1140, 1380].map((x, i) => (
-        <g key={`vax-${i}`}>
-          {L(x, axisTopY - 50, x, groundY + 60, 0.3 + i * 0.08, sf, 0.2, '6 8')}
-          {C(x, axisTopY - 70, 14, 0.5 + i * 0.08, s, 0.3)}
-        </g>
+      {/* Kitchen windows — north */}
+      {L(ox + 400, oy, ox + 500, oy, 1.9, inkMed, 2.5)}
+      {L(ox + 400, oy + 12, ox + 500, oy + 12, 1.95, inkMed, 0.6)}
+
+      {/* Study window — east */}
+      {L(ox + 900, oy + 80, ox + 900, oy + 180, 2.0, inkMed, 2.5)}
+      {L(ox + 888, oy + 80, ox + 888, oy + 180, 2.05, inkMed, 0.6)}
+
+      {/* Bedroom 1 — west */}
+      {L(ox, oy + 450, ox, oy + 550, 2.1, inkMed, 2.5)}
+      {L(ox + 12, oy + 450, ox + 12, oy + 550, 2.15, inkMed, 0.6)}
+
+      {/* Bedroom 2 — south */}
+      {L(ox + 330, oy + 688, ox + 460, oy + 688, 2.2, inkMed, 2.5)}
+      {L(ox + 330, oy + 700, ox + 460, oy + 700, 2.25, inkMed, 0.6)}
+
+      {/* ════════ STAIRS (in hallway) ════════ */}
+      {Array.from({ length: 10 }, (_, i) => (
+        L(ox + 400, oy + 370 + i * 12, ox + 530, oy + 370 + i * 12, 2.0 + i * 0.04, inkFine, 0.6)
       ))}
-      {/* Axis labels */}
-      {[
-        [480, 'A'], [760, 'B'], [780, 'C'], [1120, 'D'], [1140, 'E'], [1380, 'F'],
-      ].map(([x, label], i) => (
-        T(x as number, (axisTopY - 66) as number, label as string, 0.7 + i * 0.08, 8, 'middle', 0)
-      ))}
-
-      {/* Horizontal axes (floor levels) */}
-      {[groundY, groundY - 200, groundY - 400, groundY - 520].map((y, i) => (
-        <g key={`hax-${i}`}>
-          {L(380, y, 1480, y, 0.4 + i * 0.1, sf, 0.15, '6 10')}
-          {C(370, y, 14, 0.6 + i * 0.1, s, 0.3)}
-        </g>
-      ))}
-      {/* Floor level labels */}
-      {[
-        [groundY, '1'], [groundY - 200, '2'], [groundY - 400, '3'], [groundY - 520, '4'],
-      ].map(([y, label], i) => (
-        T(370, (y as number) + 4, label as string, 0.8 + i * 0.1, 8, 'middle', 0)
-      ))}
-
-      {/* ════════ BUILDING FACADES ════════ */}
-      {bldgs.map((b, bi) => {
-        const topY = groundY - b.h;
-        const bDelay = 0.6 + bi * 0.3;
-        const pathLen = 2 * b.w + b.h; // U-shape (no bottom, sits on ground)
-
-        return (
-          <g key={`bld-${bi}`}>
-            {/* Building outline — U shape from ground up */}
-            <path
-              d={`M ${b.x} ${groundY} L ${b.x} ${topY} L ${b.x + b.w} ${topY} L ${b.x + b.w} ${groundY}`}
-              fill="none" stroke={s} strokeWidth="0.5" strokeLinecap="square"
-              className="bp-line"
-              style={{ '--bp-len': pathLen, '--bp-delay': `${bDelay}s` } as React.CSSProperties}
-            />
-
-            {/* Roof parapet line */}
-            {L(b.x - 8, topY, b.x + b.w + 8, topY, bDelay + 0.3, s, 0.4)}
-            {/* Parapet cap */}
-            {L(b.x - 8, topY - 6, b.x + b.w + 8, topY - 6, bDelay + 0.35, sf, 0.3)}
-
-            {/* Windows */}
-            {(() => {
-              const wc = winConfigs[bi];
-              const elements: React.ReactNode[] = [];
-              for (let row = 0; row < wc.rows; row++) {
-                for (let col = 0; col < wc.cols; col++) {
-                  const wx = b.x + wc.padX + col * wc.gx;
-                  const wy = topY + wc.padY + row * wc.gy;
-                  const wDelay = bDelay + 0.5 + winIdx * 0.02;
-                  elements.push(
-                    <rect
-                      key={`w-${bi}-${row}-${col}`}
-                      x={wx} y={wy} width={wc.ww} height={wc.wh}
-                      fill="none" stroke={sf} strokeWidth="0.3"
-                      className="bp-text"
-                      style={{ '--bp-delay': `${wDelay}s` } as React.CSSProperties}
-                    />,
-                  );
-                  // Window cross (mullion)
-                  elements.push(
-                    <line
-                      key={`wm-${bi}-${row}-${col}`}
-                      x1={wx + wc.ww / 2} y1={wy}
-                      x2={wx + wc.ww / 2} y2={wy + wc.wh}
-                      stroke={sf} strokeWidth="0.2"
-                      className="bp-text"
-                      style={{ '--bp-delay': `${wDelay + 0.05}s` } as React.CSSProperties}
-                    />,
-                  );
-                  winIdx++;
-                }
-              }
-              return elements;
-            })()}
-
-            {/* Entrance door (only on center building) */}
-            {bi === 1 && (
-              <>
-                {R(b.x + b.w / 2 - 30, groundY - 80, 60, 80, bDelay + 0.4, s, 0.4)}
-                {/* Door handle */}
-                {C(b.x + b.w / 2 + 20, groundY - 40, 2, bDelay + 0.8, s, 0.3)}
-                {/* Canopy above door */}
-                {L(b.x + b.w / 2 - 50, groundY - 90, b.x + b.w / 2 + 50, groundY - 90, bDelay + 0.5, s, 0.4)}
-                {L(b.x + b.w / 2 - 50, groundY - 90, b.x + b.w / 2 - 60, groundY - 85, bDelay + 0.55, sf, 0.3)}
-                {L(b.x + b.w / 2 + 50, groundY - 90, b.x + b.w / 2 + 60, groundY - 85, bDelay + 0.55, sf, 0.3)}
-              </>
-            )}
-          </g>
-        );
-      })}
-
-      {/* ════════ GROUND LINE + HATCHING ════════ */}
-      {L(380, groundY, 1480, groundY, 0.5, s, 0.5)}
-      {/* Ground hatching */}
-      {Array.from({ length: 28 }, (_, i) => (
-        L(400 + i * 38, groundY, 388 + i * 38, groundY + 20, 1.8 + i * 0.02, sf, 0.2)
-      ))}
-      {/* Ground fill line below */}
-      {L(380, groundY + 20, 1480, groundY + 20, 1.5, sf, 0.3)}
-
-      {/* ════════ HORIZONTAL DIMENSIONS (above buildings) ════════ */}
-      {/* Total width */}
-      {L(480, axisTopY - 100, 1380, axisTopY - 100, 1.8, s, 0.3)}
-      {L(480, axisTopY - 105, 480, axisTopY - 95, 1.85, s, 0.3)}
-      {L(1380, axisTopY - 105, 1380, axisTopY - 95, 1.9, s, 0.3)}
-      {T(930, axisTopY - 108, '28 400', 2.4, 8)}
-      {/* Extension lines up */}
-      {L(480, axisTopY - 50, 480, axisTopY - 105, 1.7, sf, 0.2, '2 4')}
-      {L(1380, axisTopY - 50, 1380, axisTopY - 105, 1.75, sf, 0.2, '2 4')}
-
-      {/* Individual building widths */}
-      {bldgs.map((b, i) => {
-        return (
-          <g key={`hdim-${i}`}>
-            {L(b.x, axisTopY - 85, b.x + b.w, axisTopY - 85, 2.0 + i * 0.1, sf, 0.25)}
-            {L(b.x, axisTopY - 90, b.x, axisTopY - 80, 2.05 + i * 0.1, sf, 0.25)}
-            {L(b.x + b.w, axisTopY - 90, b.x + b.w, axisTopY - 80, 2.1 + i * 0.1, sf, 0.25)}
-            {T(b.x + b.w / 2, axisTopY - 88, String(b.w * 10), 2.6 + i * 0.1, 7)}
-          </g>
-        );
-      })}
-
-      {/* ════════ VERTICAL DIMENSIONS (left side) ════════ */}
-      {/* Full height dim for center (tallest) building */}
-      {L(430, groundY, 430, groundY - 520, 2.0, s, 0.3)}
-      {L(425, groundY, 435, groundY, 2.05, s, 0.3)}
-      {L(425, groundY - 520, 435, groundY - 520, 2.1, s, 0.3)}
-
-      {/* Floor height ticks */}
-      {[0, 200, 400, 520].map((h, i) => (
-        <g key={`vdim-${i}`}>
-          {L(440, groundY - h, 460, groundY - h, 2.2 + i * 0.1, sf, 0.25)}
-          {T(415, groundY - h + 4, ['\u00b10.000', '+3.200', '+6.400', '+9.100'][i], 2.8 + i * 0.1, 7, 'end', 1)}
-        </g>
-      ))}
-
-      {/* Level markers ▽ */}
-      {[0, 200, 400, 520].map((h, i) => (
-        <polygon
-          key={`lvl-${i}`}
-          points={`${445},${groundY - h - 5} ${450},${groundY - h + 5} ${440},${groundY - h + 5}`}
-          fill="none" stroke={s} strokeWidth="0.3"
-          className="bp-circle"
-          style={{ '--bp-delay': `${2.5 + i * 0.1}s` } as React.CSSProperties}
-        />
-      ))}
-
-      {/* ════════ SECTION CUT MARKERS ════════ */}
-      {/* Section A-A' */}
-      {C(620, groundY + 50, 14, 2.8, s, 0.4)}
-      {T(620, groundY + 54, 'A', 3.1, 9, 'middle', 0)}
-      {L(620, groundY + 36, 620, groundY + 10, 2.7, s, 0.4)}
-      {/* Arrow head */}
+      {/* Stair arrow */}
+      {L(ox + 465, oy + 370, ox + 465, oy + 490, 2.3, inkMed, 0.8)}
       <polygon
-        points="615,15 620,5 625,15"
-        fill="none" stroke={s} strokeWidth="0.3"
+        points={`${ox + 460},${oy + 375} ${ox + 465},${oy + 365} ${ox + 470},${oy + 375}`}
+        fill="none" stroke={inkMed} strokeWidth={0.6}
         className="bp-circle"
-        transform={`translate(0, ${groundY - 5})`}
-        style={{ '--bp-delay': '2.9s' } as React.CSSProperties}
+        style={{ '--bp-delay': '2.4s' } as React.CSSProperties}
       />
 
-      {/* Section B-B' */}
-      {C(1260, groundY + 50, 14, 2.9, s, 0.4)}
-      {T(1260, groundY + 54, 'B', 3.2, 9, 'middle', 0)}
-      {L(1260, groundY + 36, 1260, groundY + 10, 2.8, s, 0.4)}
+      {/* ════════ FURNITURE SKETCHES ════════ */}
+      {/* Living room — sofa */}
+      {R(ox + 40, oy + 420, 120, 45, 2.5, inkFine, 0.6)}
+      {R(ox + 40, oy + 465, 120, 12, 2.55, inkFine, 0.4)}
+      {/* Coffee table */}
+      {R(ox + 70, oy + 500, 60, 35, 2.6, inkFine, 0.5)}
+
+      {/* Dining table */}
+      {R(ox + 50, oy + 120, 80, 120, 2.5, inkFine, 0.6)}
+      {/* Chairs */}
+      {[0, 1, 2, 3].map((i) => (
+        R(ox + 30, oy + 130 + i * 28, 15, 20, 2.6 + i * 0.05, inkFine, 0.4)
+      ))}
+      {[0, 1, 2, 3].map((i) => (
+        R(ox + 135, oy + 130 + i * 28, 15, 20, 2.65 + i * 0.05, inkFine, 0.4)
+      ))}
+
+      {/* Kitchen — counter along wall */}
+      {R(ox + 370, oy + 20, 160, 40, 2.5, inkFine, 0.6)}
+      {/* Sink circle */}
+      {C(ox + 420, oy + 40, 10, 2.7, inkFine, 0.5)}
+      {C(ox + 450, oy + 40, 10, 2.75, inkFine, 0.5)}
+      {/* Stove */}
+      {R(ox + 480, oy + 25, 40, 30, 2.65, inkFine, 0.5)}
+      {[0, 1, 2, 3].map((i) => (
+        C(ox + 490 + (i % 2) * 20, oy + 35 + Math.floor(i / 2) * 15, 4, 2.8 + i * 0.03, inkFine, 0.4)
+      ))}
+
+      {/* Bed — bedroom 1 */}
+      {R(ox + 40, oy + 430, 100, 140, 2.7, inkFine, 0.6)}
+      {L(ox + 40, oy + 440, ox + 140, oy + 440, 2.75, inkFine, 0.3)}
+
+      {/* Bed — bedroom 2 */}
+      {R(ox + 300, oy + 430, 100, 140, 2.7, inkFine, 0.6)}
+      {L(ox + 300, oy + 440, ox + 400, oy + 440, 2.75, inkFine, 0.3)}
+
+      {/* Bathroom — tub */}
+      {R(ox + 370, oy + 530, 60, 140, 2.8, inkFine, 0.6)}
+      {/* Toilet */}
+      {C(ox + 500, oy + 560, 12, 2.85, inkFine, 0.5)}
+      {R(ox + 488, oy + 570, 24, 18, 2.9, inkFine, 0.4)}
+      {/* Washbasin */}
+      {R(ox + 460, oy + 520, 20, 16, 2.85, inkFine, 0.4)}
+
+      {/* Study — desk */}
+      {R(ox + 680, oy + 40, 180, 60, 2.6, inkFine, 0.6)}
+      {/* Chair */}
+      {C(ox + 770, oy + 130, 14, 2.7, inkFine, 0.5)}
+
+      {/* Guest room — bed */}
+      {R(ox + 700, oy + 200, 80, 120, 2.7, inkFine, 0.6)}
+      {L(ox + 700, oy + 210, ox + 780, oy + 210, 2.75, inkFine, 0.3)}
+
+      {/* ════════ ROOM LABELS ════════ */}
+      {T(ox + 170, oy + 175, 'OBÝVACÍ POKOJ', 3.0, 12, 'middle', 3)}
+      {T(ox + 170, oy + 195, '32.4 m²', 3.1, 9, 'middle', 1)}
+
+      {T(ox + 500, oy + 175, 'KUCHYNĚ', 3.0, 12, 'middle', 3)}
+      {T(ox + 500, oy + 195, '18.6 m²', 3.1, 9, 'middle', 1)}
+
+      {T(ox + 135, oy + 560, 'LOŽNICE', 3.1, 11, 'middle', 3)}
+      {T(ox + 135, oy + 578, '16.8 m²', 3.2, 8, 'middle', 1)}
+
+      {T(ox + 400, oy + 560, 'DĚTSKÝ POKOJ', 3.1, 10, 'middle', 3)}
+      {T(ox + 400, oy + 578, '14.2 m²', 3.2, 8, 'middle', 1)}
+
+      {T(ox + 460, oy + 660, 'KOUPELNA', 3.2, 9, 'middle', 3)}
+      {T(ox + 460, oy + 675, '8.4 m²', 3.3, 7, 'middle', 1)}
+
+      {T(ox + 770, oy + 100, 'PRACOVNA', 3.1, 11, 'middle', 3)}
+      {T(ox + 770, oy + 118, '12.1 m²', 3.2, 8, 'middle', 1)}
+
+      {T(ox + 770, oy + 280, 'POKOJ PRO HOSTY', 3.15, 10, 'middle', 3)}
+      {T(ox + 770, oy + 298, '11.3 m²', 3.25, 8, 'middle', 1)}
+
+      {T(ox + 465, oy + 440, 'CHODBA', 3.1, 9, 'middle', 2)}
+
+      {/* ════════ HORIZONTAL DIMENSIONS ════════ */}
+      {/* Total width — top */}
+      {L(ox, oy - 60, ox + 900, oy - 60, 2.8, inkMed, 0.7)}
+      {L(ox, oy - 68, ox, oy - 52, 2.85, inkMed, 0.7)}
+      {L(ox + 900, oy - 68, ox + 900, oy - 52, 2.9, inkMed, 0.7)}
+      {T(ox + 450, oy - 68, '18 000', 3.3, 10)}
+      {/* Extension lines */}
+      {L(ox, oy - 5, ox, oy - 60, 2.7, inkFine, 0.4, '3 5')}
+      {L(ox + 900, oy - 5, ox + 900, oy - 60, 2.75, inkFine, 0.4, '3 5')}
+
+      {/* Lower wing width */}
+      {L(ox, oy + 730, ox + 550, oy + 730, 2.9, inkMed, 0.7)}
+      {L(ox, oy + 722, ox, oy + 738, 2.95, inkMed, 0.7)}
+      {L(ox + 550, oy + 722, ox + 550, oy + 738, 3.0, inkMed, 0.7)}
+      {T(ox + 275, oy + 748, '11 000', 3.35, 9)}
+
+      {/* ════════ VERTICAL DIMENSIONS ════════ */}
+      {/* Total height — left side */}
+      {L(ox - 60, oy, ox - 60, oy + 700, 2.8, inkMed, 0.7)}
+      {L(ox - 68, oy, ox - 52, oy, 2.85, inkMed, 0.7)}
+      {L(ox - 68, oy + 700, ox - 52, oy + 700, 2.9, inkMed, 0.7)}
+      {T(ox - 75, oy + 350, '14 000', 3.3, 10, 'middle', 1)}
+      {L(ox - 5, oy, ox - 60, oy, 2.7, inkFine, 0.4, '3 5')}
+      {L(ox - 5, oy + 700, ox - 60, oy + 700, 2.75, inkFine, 0.4, '3 5')}
+
+      {/* Right side height (upper wing) */}
+      {L(ox + 940, oy, ox + 940, oy + 350, 2.9, inkMed, 0.7)}
+      {L(ox + 932, oy, ox + 948, oy, 2.95, inkMed, 0.7)}
+      {L(ox + 932, oy + 350, ox + 948, oy + 350, 3.0, inkMed, 0.7)}
+      {T(ox + 960, oy + 175, '7 000', 3.35, 9, 'start', 1)}
+
+      {/* ════════ GRID AXES ════════ */}
+      {/* Vertical axes with circles */}
+      {[ox, ox + 270, ox + 350, ox + 550, ox + 650, ox + 900].map((x, i) => (
+        <g key={`va-${i}`}>
+          {L(x, oy - 90, x, oy - 40, 3.2 + i * 0.05, inkFine, 0.5)}
+          {C(x, oy - 100, 12, 3.3 + i * 0.05, inkMed, 0.6)}
+          {T(x, oy - 96, String.fromCharCode(65 + i), 3.5 + i * 0.05, 9, 'middle', 0)}
+        </g>
+      ))}
+
+      {/* Horizontal axes */}
+      {[oy, oy + 350, oy + 500, oy + 700].map((y, i) => (
+        <g key={`ha-${i}`}>
+          {L(ox - 90, y, ox - 40, y, 3.2 + i * 0.05, inkFine, 0.5)}
+          {C(ox - 100, y, 12, 3.3 + i * 0.05, inkMed, 0.6)}
+          {T(ox - 100, y + 4, String(i + 1), 3.5 + i * 0.05, 9, 'middle', 0)}
+        </g>
+      ))}
 
       {/* ════════ NORTH ARROW ════════ */}
-      {L(1720, 180, 1720, 110, 2.5, s, 0.5)}
+      {L(1680, 200, 1680, 110, 3.0, ink, 1.2)}
       <polygon
-        points="1714,115 1720,95 1726,115"
-        fill="none" stroke={s} strokeWidth="0.4"
+        points="1674,118 1680,95 1686,118"
+        fill="none" stroke={ink} strokeWidth={0.8}
         className="bp-circle"
-        style={{ '--bp-delay': '2.7s' } as React.CSSProperties}
+        style={{ '--bp-delay': '3.2s' } as React.CSSProperties}
       />
-      {T(1720, 90, 'S', 3.0, 11, 'middle', 0)}
-      {C(1720, 180, 30, 2.6, sf, 0.3)}
+      {T(1680, 88, 'S', 3.4, 14, 'middle', 0)}
+      {C(1680, 200, 35, 3.1, inkMed, 0.7)}
+      {L(1645, 200, 1715, 200, 3.15, inkFine, 0.4)}
+      {L(1680, 165, 1680, 235, 3.15, inkFine, 0.4)}
 
       {/* ════════ TITLE BLOCK ════════ */}
-      {/* Title block border */}
-      {R(1400, 880, 440, 140, 3.0, s, 0.4)}
-      {/* Divider lines */}
-      {L(1400, 920, 1840, 920, 3.1, sf, 0.3)}
-      {L(1400, 960, 1840, 960, 3.15, sf, 0.3)}
-      {L(1400, 990, 1840, 990, 3.2, sf, 0.3)}
-      {L(1620, 920, 1620, 1020, 3.25, sf, 0.3)}
+      {R(1380, 860, 470, 160, 3.3, inkMed, 1)}
+      {L(1380, 900, 1850, 900, 3.4, inkMed, 0.6)}
+      {L(1380, 940, 1850, 940, 3.45, inkMed, 0.6)}
+      {L(1380, 975, 1850, 975, 3.5, inkFine, 0.4)}
+      {L(1615, 900, 1615, 1020, 3.5, inkMed, 0.6)}
 
-      {/* Title block text */}
-      {T(1620, 908, 'KUBA & KUBOV\u00c1 ARCHITEKTI', 3.4, 10, 'middle', 3)}
-      {T(1620, 948, 'POHLED JI\u017dN\u00cd \u2014 NOVOSTAVBA VILA', 3.5, 8, 'middle', 2)}
-      {T(1500, 980, 'M 1:100', 3.6, 7, 'middle', 2)}
-      {T(1730, 980, 'DATUM: 03/2024', 3.65, 7, 'middle', 1)}
-      {T(1500, 1010, '\u010c.V.: A-04', 3.7, 7, 'middle', 2)}
-      {T(1730, 1010, 'FORM\u00c1T: A1', 3.75, 7, 'middle', 1)}
+      {T(1615, 888, 'KUBA & KUBOVÁ ARCHITEKTI', 3.7, 13, 'middle', 4)}
+      {T(1615, 928, 'PŮDORYS 1.NP — RODINNÝ DŮM', 3.75, 10, 'middle', 3)}
+      {T(1497, 963, 'M 1:100', 3.8, 9, 'middle', 2)}
+      {T(1732, 963, 'DATUM: 03/2024', 3.85, 9, 'middle', 1)}
+      {T(1497, 1000, 'Č.V.: A-01', 3.9, 9, 'middle', 2)}
+      {T(1732, 1000, 'STUPEŇ: DPS', 3.95, 9, 'middle', 1)}
 
-      {/* ════════ SCATTERED NOTES ════════ */}
-      {T(480, groundY + 80, 'POHLED JI\u017dN\u00cd', 3.3, 8, 'start', 3)}
-      {T(480, groundY + 95, 'M\u011a\u0158\u00cdTKO 1:100', 3.35, 7, 'start', 2)}
-
-      {/* Material note with leader line */}
-      {L(1300, groundY - 200, 1420, groundY - 240, 3.0, sf, 0.3)}
-      {T(1425, groundY - 238, 'OBKLAD: P\u0158\u00cdRODN\u00cd K\u00c1MEN', 3.4, 6, 'start', 1)}
-
-      {L(700, groundY - 350, 680, groundY - 400, 3.1, sf, 0.3)}
-      {T(640, groundY - 403, 'OKNA: HLIN\u00cdK, RAL 7016', 3.45, 6, 'end', 1)}
-
-      {/* ════════ SCALE BAR (bottom left) ════════ */}
-      {L(100, 980, 350, 980, 2.8, s, 0.4)}
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        L(100 + i * 50, 975, 100 + i * 50, 985, 2.9 + i * 0.04, s, 0.3)
+      {/* ════════ SCALE BAR ════════ */}
+      {L(1400, 800, 1700, 800, 3.2, inkMed, 0.8)}
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+        <g key={`sb-${i}`}>
+          {L(1400 + i * 50, 793, 1400 + i * 50, 807, 3.3 + i * 0.03, inkMed, 0.6)}
+        </g>
       ))}
-      {T(100, 998, '0', 3.3, 7, 'middle', 0)}
-      {T(225, 998, '5m', 3.35, 7, 'middle', 1)}
-      {T(350, 998, '10m', 3.4, 7, 'middle', 1)}
+      {T(1400, 820, '0', 3.6, 8, 'middle', 0)}
+      {T(1550, 820, '5m', 3.65, 8, 'middle', 1)}
+      {T(1700, 820, '10m', 3.7, 8, 'middle', 1)}
+
+      {/* ════════ SECTION MARKERS ════════ */}
+      {C(ox + 450, oy + 740, 16, 3.3, inkMed, 0.8)}
+      {T(ox + 450, oy + 744, 'A-A\'', 3.5, 8, 'middle', 1)}
+      {L(ox + 450, oy + 724, ox + 450, oy + 705, 3.35, inkMed, 0.8)}
+
+      {C(ox - 30, oy + 350, 16, 3.35, inkMed, 0.8)}
+      {T(ox - 30, oy + 354, 'B-B\'', 3.55, 8, 'middle', 1)}
+      {L(ox - 30, oy + 334, ox - 30, oy + 315, 3.4, inkMed, 0.8)}
+
+      {/* ════════ ELEVATION NOTES ════════ */}
+      {T(ox + 100, oy + 750, '±0,000 = 245,30 m n. m.  B.p.v.', 3.6, 8, 'start', 1)}
+      {T(1400, 770, 'PŮDORYS 1. NADZEMNÍHO PODLAŽÍ', 3.5, 9, 'start', 2)}
+      {T(1400, 788, 'MĚŘÍTKO  1 : 100', 3.55, 8, 'start', 2)}
+
     </svg>
   );
 }
