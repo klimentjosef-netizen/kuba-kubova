@@ -46,7 +46,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Grid texture overlay */
+/* Grid texture overlay — covers all pages except hero */
 body::after {
   content: '';
   position: fixed;
@@ -57,6 +57,13 @@ body::after {
     linear-gradient(rgba(15, 15, 13, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(15, 15, 13, 0.03) 1px, transparent 1px);
   background-size: 60px 60px;
+}
+
+/* Hero clean background — no grid texture */
+.hero-clean {
+  position: relative;
+  z-index: 9999;
+  background: var(--stone);
 }
 
 img {

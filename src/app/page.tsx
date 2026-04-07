@@ -17,7 +17,7 @@ export default function HomePage() {
   return (
     <>
       {/* ===== HERO ===== */}
-      <section style={styles.hero} className="bp-section">
+      <section style={styles.hero} className="bp-section hero-clean">
         <HeroBlueprintFull />
         <div className="container" style={styles.heroContent}>
           <p className="section-label">Architektonické studio Ostrava</p>
