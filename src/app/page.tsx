@@ -6,6 +6,7 @@ import { useScrollRevealAll } from '@/hooks/useScrollReveal';
 import Marquee from '@/components/Marquee';
 import ContactBar from '@/components/ContactBar';
 import ProjectCard from '@/components/ProjectCard';
+import BlueprintOverlay from '@/components/BlueprintOverlay';
 
 export default function HomePage() {
   useScrollRevealAll();
@@ -15,7 +16,8 @@ export default function HomePage() {
   return (
     <>
       {/* ===== HERO ===== */}
-      <section style={styles.hero}>
+      <section style={styles.hero} className="bp-section">
+        <BlueprintOverlay variant="hero" />
         <div className="container hero-grid" style={styles.heroInner}>
           <div style={styles.heroLeft}>
             <p className="section-label">Architektonické studio Ostrava</p>
@@ -58,7 +60,8 @@ export default function HomePage() {
       <Marquee />
 
       {/* ===== FOUNDERS ===== */}
-      <section style={styles.founders}>
+      <section style={styles.founders} className="bp-section">
+        <BlueprintOverlay variant="founders" />
         <div className="founders-grid" style={styles.foundersGrid}>
           {/* Michal — light */}
           <div style={styles.founderLight} className="reveal">
@@ -97,7 +100,8 @@ export default function HomePage() {
       </section>
 
       {/* ===== FEATURED PROJECTS ===== */}
-      <section className="section" style={{ backgroundColor: 'var(--cream)' }}>
+      <section className="section bp-section" style={{ backgroundColor: 'var(--cream)' }}>
+        <BlueprintOverlay variant="projects" />
         <div className="container">
           <p className="section-label reveal">Vybrané realizace</p>
           <h2 style={styles.sectionTitle} className="reveal">
@@ -117,7 +121,8 @@ export default function HomePage() {
       </section>
 
       {/* ===== PHILOSOPHY ===== */}
-      <section style={styles.philosophy} className="reveal">
+      <section style={styles.philosophy} className="reveal bp-section">
+        <BlueprintOverlay variant="philosophy" dark />
         <div className="container hero-grid" style={styles.philInner}>
           <div style={styles.philQuote} className="reveal">
             <em style={styles.philQuoteText}>
@@ -291,12 +296,16 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
+    position: 'relative' as const,
+    overflow: 'hidden',
   },
   heroInner: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '80px',
     alignItems: 'center',
+    position: 'relative' as const,
+    zIndex: 1,
   },
   heroLeft: {},
   heroTitle: {
@@ -358,10 +367,15 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   /* Founders */
-  founders: {},
+  founders: {
+    position: 'relative' as const,
+    overflow: 'hidden',
+  },
   foundersGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
+    position: 'relative' as const,
+    zIndex: 1,
   },
   founderLight: {
     backgroundColor: 'var(--stone)',
@@ -445,12 +459,16 @@ const styles: Record<string, React.CSSProperties> = {
   philosophy: {
     backgroundColor: 'var(--bronze)',
     padding: '100px 0',
+    position: 'relative' as const,
+    overflow: 'hidden',
   },
   philInner: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '80px',
     alignItems: 'center',
+    position: 'relative' as const,
+    zIndex: 1,
   },
   philQuote: {},
   philQuoteText: {

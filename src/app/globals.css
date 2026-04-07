@@ -281,6 +281,15 @@ h1, h2, h3, h4 {
   100% { transform: translateX(-50%); }
 }
 
+/* Marquee blueprint line */
+.marquee-bp-line {
+  transition: stroke-dashoffset 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bp-active-line {
+  stroke-dashoffset: 0 !important;
+}
+
 /* ----- Architect Drawing Animation ----- */
 @keyframes draw-line {
   from { stroke-dashoffset: var(--path-length); }
@@ -400,6 +409,52 @@ h1, h2, h3, h4 {
     width: 100% !important;
     transition: none !important;
   }
+
+  .blueprint-svg .bp-line {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+
+  .blueprint-svg .bp-circle,
+  .blueprint-svg .bp-text {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* ----- Blueprint Overlay ----- */
+.blueprint-svg .bp-line {
+  stroke-dasharray: var(--bp-len);
+  stroke-dashoffset: var(--bp-len);
+  transition: none;
+}
+
+.blueprint-svg .bp-circle {
+  opacity: 0;
+  transition: none;
+}
+
+.blueprint-svg .bp-text {
+  opacity: 0;
+  transition: none;
+}
+
+.blueprint-svg.bp-active .bp-line {
+  animation: draw-line var(--bp-draw-speed, 1.4s) cubic-bezier(0.4, 0, 0.2, 1) var(--bp-delay, 0s) forwards;
+}
+
+.blueprint-svg.bp-active .bp-circle {
+  animation: fade-in-stroke 0.8s ease var(--bp-delay, 0.5s) forwards;
+}
+
+.blueprint-svg.bp-active .bp-text {
+  animation: fade-in-stroke 0.6s ease var(--bp-delay, 1s) forwards;
+}
+
+/* Section wrapper for blueprint */
+.bp-section {
+  position: relative;
+  overflow: hidden;
 }
 
 /* ----- Project Card hover ----- */

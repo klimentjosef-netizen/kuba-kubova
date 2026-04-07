@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { contact } from '@/data/content';
+import BlueprintOverlay from '@/components/BlueprintOverlay';
 
 export default function ContactBar() {
   return (
-    <section style={styles.bar}>
+    <section style={styles.bar} className="bp-section">
+      <BlueprintOverlay variant="contact" dark />
       <div className="container contact-bar-inner" style={styles.inner}>
         <h2 style={styles.headline}>
           <em>Máte projekt?</em> Ozvěte se nám.
@@ -31,6 +33,8 @@ const styles: Record<string, React.CSSProperties> = {
   bar: {
     backgroundColor: 'var(--ink)',
     padding: '80px 0',
+    position: 'relative',
+    overflow: 'hidden',
   },
   inner: {
     display: 'flex',
@@ -38,6 +42,8 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     flexWrap: 'wrap' as const,
     gap: '32px',
+    position: 'relative',
+    zIndex: 1,
   },
   headline: {
     fontFamily: 'var(--font-serif)',
