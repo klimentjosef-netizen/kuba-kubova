@@ -100,19 +100,34 @@ export default function HomePage() {
       <section className="section bp-section" style={{ backgroundColor: 'var(--cream)' }}>
         <BlueprintOverlay variant="projects" />
         <div className="container">
-          <p className="section-label reveal">Vybrané realizace</p>
-          <h2 style={styles.sectionTitle} className="reveal">
-            Projekty, na které jsme hrdí
-          </h2>
-
-          <div style={styles.projectGrid} className="reveal project-grid">
-            {featured.map((p) => (
-              <ProjectCard key={p.id} project={p} />
-            ))}
-            <Link href="/projekty" style={styles.moreTile}>
-              <span style={styles.moreNum}>+60</span>
-              <span style={styles.moreText}>dalších projektů</span>
+          <div style={styles.projectHeader} className="reveal">
+            <div>
+              <p className="section-label">Vybrané realizace</p>
+              <h2 style={styles.sectionTitle}>
+                Projekty, na které jsme hrdí
+              </h2>
+            </div>
+            <Link href="/projekty" className="btn btn--bronze" style={{ alignSelf: 'flex-end', marginBottom: '48px' }}>
+              Všechny projekty
             </Link>
+          </div>
+
+          <div style={styles.projectGrid} className="reveal hero-grid">
+            {/* Row 1: hero card + stacked pair */}
+            <div style={styles.projectHero}>
+              <ProjectCard project={featured[0]} />
+            </div>
+            <div style={styles.projectStack}>
+              <ProjectCard project={featured[1]} />
+              <ProjectCard project={featured[2]} />
+            </div>
+          </div>
+
+          {/* Row 2: three equal cards */}
+          <div style={styles.projectRow2} className="reveal project-grid">
+            <ProjectCard project={featured[3]} />
+            <ProjectCard project={projects[4]} />
+            <ProjectCard project={projects[5]} />
           </div>
         </div>
       </section>
@@ -278,6 +293,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   /* Section heading */
+  projectHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: '32px',
+    flexWrap: 'wrap' as const,
+  },
   sectionTitle: {
     fontFamily: 'var(--font-serif)',
     fontSize: 'clamp(32px, 4vw, 48px)',
@@ -285,36 +307,23 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: '48px',
   },
 
-  /* Project grid */
+  /* Project grid — asymmetric masonry */
   projectGrid: {
     display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr',
+    gridTemplateColumns: '1.3fr 1fr',
     gap: '24px',
+    marginBottom: '24px',
   },
-  moreTile: {
+  projectHero: {},
+  projectStack: {
     display: 'flex',
     flexDirection: 'column' as const,
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '0.5px solid var(--slate)',
-    textDecoration: 'none',
-    transition: 'background 0.3s, border-color 0.3s',
-    padding: '32px 24px',
+    gap: '24px',
   },
-  moreNum: {
-    fontFamily: 'var(--font-serif)',
-    fontSize: '28px',
-    fontWeight: 400,
-    color: 'var(--ink)',
-    lineHeight: 1,
-  },
-  moreText: {
-    fontFamily: 'var(--font-sans)',
-    fontSize: '14px',
-    fontWeight: 300,
-    color: 'var(--slate)',
-    marginTop: '8px',
-    letterSpacing: '0.04em',
+  projectRow2: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '24px',
   },
 
   /* Philosophy */
