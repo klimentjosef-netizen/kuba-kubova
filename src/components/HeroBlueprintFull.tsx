@@ -3,9 +3,9 @@
 import { useEffect, useRef, useMemo } from 'react';
 
 /**
- * Architectural perspective sketch — raw, overlapping lines
- * like a hand-drawn concept sketch of a modern building.
- * Lines appear randomly with varying thickness and opacity.
+ * Complex architectural perspective sketch — hundreds of straight lines
+ * forming a modern building complex. Clean, technical, no wobble.
+ * All drawn within ~5 seconds with randomized order.
  */
 export default function HeroBlueprintFull() {
   const ref = useRef<SVGSVGElement>(null);
@@ -13,232 +13,321 @@ export default function HeroBlueprintFull() {
   useEffect(() => {
     const svg = ref.current;
     if (!svg) return;
-    const timer = setTimeout(() => svg.classList.add('bp-active'), 300);
+    const timer = setTimeout(() => svg.classList.add('bp-active'), 200);
     return () => clearTimeout(timer);
   }, []);
 
-  // Seeded pseudo-random for consistent renders
-  const seededRandom = (seed: number) => {
-    let s = seed;
-    return () => {
-      s = (s * 16807 + 7) % 2147483647;
-      return (s % 10000) / 10000;
-    };
-  };
-
   const lines = useMemo(() => {
-    const rand = seededRandom(42);
-    const result: {
-      x1: number; y1: number; x2: number; y2: number;
-      w: number; o: number; delay: number; speed: number;
-    }[] = [];
+    const result: { x1: number; y1: number; x2: number; y2: number; w: number; o: number; delay: number; speed: number }[] = [];
 
-    // ─── VANISHING POINT (slightly right of center, upper third) ───
-    const vx = 1050;
-    const vy = 340;
+    // Seeded random
+    let seed = 42;
+    const rand = () => { seed = (seed * 16807 + 7) % 2147483647; return (seed % 10000) / 10000; };
 
-    // ─── HELPER: add a sketchy line with slight randomness ───
-    const addLine = (x1: number, y1: number, x2: number, y2: number, weight: number, opacity: number, timeSlot: number) => {
-      // Main line
-      result.push({
-        x1: x1 + (rand() - 0.5) * 3,
-        y1: y1 + (rand() - 0.5) * 3,
-        x2: x2 + (rand() - 0.5) * 3,
-        y2: y2 + (rand() - 0.5) * 3,
-        w: weight * (0.8 + rand() * 0.4),
-        o: opacity * (0.7 + rand() * 0.6),
-        delay: timeSlot + rand() * 2,
-        speed: 1.5 + rand() * 2.5,
-      });
-
-      // Overlap / construction line (lighter, slightly offset)
-      if (rand() > 0.3) {
-        const offsetX = (rand() - 0.5) * 6;
-        const offsetY = (rand() - 0.5) * 6;
-        result.push({
-          x1: x1 + offsetX, y1: y1 + offsetY,
-          x2: x2 + offsetX, y2: y2 + offsetY,
-          w: weight * 0.4,
-          o: opacity * 0.3,
-          delay: timeSlot + rand() * 1.5,
-          speed: 1.0 + rand() * 2,
-        });
-      }
-
-      // Overshoot line (extends past endpoints)
-      if (rand() > 0.5) {
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const ext = 0.08 + rand() * 0.15;
-        result.push({
-          x1: x1 - dx * ext * 0.5,
-          y1: y1 - dy * ext * 0.5,
-          x2: x2 + dx * ext,
-          y2: y2 + dy * ext,
-          w: weight * 0.25,
-          o: opacity * 0.2,
-          delay: timeSlot - 0.5 + rand() * 1,
-          speed: 0.8 + rand() * 1.5,
-        });
-      }
+    const add = (x1: number, y1: number, x2: number, y2: number, w: number, o: number) => {
+      result.push({ x1, y1, x2, y2, w, o, delay: 0, speed: 0 });
     };
 
-    // ─── BUILDING 1: Modern box, left side ───
-    // Front face
-    addLine(200, 750, 200, 300, 1.8, 0.22, 0);   // left edge
-    addLine(200, 300, 700, 300, 1.5, 0.20, 1);    // top
-    addLine(700, 300, 700, 750, 1.8, 0.22, 0.5);  // right edge
-    addLine(200, 750, 700, 750, 1.2, 0.18, 1.5);  // bottom
+    // Vanishing point
+    const vx = 1020, vy = 330;
 
-    // Perspective lines to vanishing point
-    addLine(200, 300, vx, vy, 0.8, 0.10, 2);
-    addLine(700, 300, vx + 100, vy - 10, 0.8, 0.10, 2.5);
-    addLine(200, 750, vx - 200, vy + 300, 0.5, 0.07, 3);
-    addLine(700, 750, vx, vy + 250, 0.5, 0.07, 3);
+    // Helper: perspective line from point toward VP
+    const toVP = (x: number, y: number, t: number, w: number, o: number) => {
+      add(x, y, x + (vx - x) * t, y + (vy - y) * t, w, o);
+    };
 
-    // Floor lines (horizontal slabs)
-    addLine(200, 450, 700, 450, 1.0, 0.15, 3);
-    addLine(200, 600, 700, 600, 1.0, 0.15, 3.5);
-    // Perspective floor lines
-    addLine(700, 450, vx + 50, vy + 50, 0.6, 0.08, 4);
-    addLine(700, 600, vx + 30, vy + 150, 0.6, 0.08, 4.5);
+    // ════════════════════════════════════════════════
+    // BUILDING A — Left block (glass facade, horizontal louvers)
+    // ════════════════════════════════════════════════
+    const aL = 80, aR = 480, aTop = 250, aBot = 780;
+    // Main edges
+    add(aL, aBot, aL, aTop, 2.0, 0.22);
+    add(aR, aBot, aR, aTop - 30, 2.0, 0.22);
+    add(aL, aTop, aR, aTop - 30, 1.5, 0.18);
+    add(aL, aBot, aR, aBot, 1.2, 0.15);
+    // Perspective depth
+    toVP(aR, aTop - 30, 0.25, 1.0, 0.12);
+    toVP(aR, aBot, 0.2, 0.8, 0.10);
 
-    // Windows — vertical divisions
-    for (let i = 0; i < 5; i++) {
-      const x = 240 + i * 95;
-      addLine(x, 310, x, 440, 0.7, 0.12, 5 + rand() * 3);
-      addLine(x, 460, x, 590, 0.7, 0.12, 5.5 + rand() * 3);
-      addLine(x, 610, x, 740, 0.7, 0.12, 6 + rand() * 3);
+    // Horizontal louvers / floor lines (every ~35px)
+    for (let i = 0; i < 15; i++) {
+      const y = aTop + 5 + i * 35;
+      if (y > aBot - 10) break;
+      add(aL, y, aR, y - 2, 0.6 + (i % 3 === 0 ? 0.5 : 0), (i % 3 === 0) ? 0.14 : 0.07);
+      // Depth continuation
+      if (i % 2 === 0) {
+        const ex = aR + (vx - aR) * 0.15;
+        const ey = y - 2 + (vy - y) * 0.15;
+        add(aR, y - 2, ex, ey, 0.4, 0.05);
+      }
     }
 
-    // Window horizontals
-    addLine(230, 375, 690, 375, 0.4, 0.08, 6);
-    addLine(230, 525, 690, 525, 0.4, 0.08, 6.5);
-    addLine(230, 675, 690, 675, 0.4, 0.08, 7);
+    // Vertical mullions
+    for (let i = 0; i < 8; i++) {
+      const x = aL + 30 + i * 52;
+      add(x, aTop + 5, x, aBot, 0.5, 0.08);
+    }
 
-    // ─── BUILDING 2: Taller tower, right side ───
-    addLine(750, 750, 750, 150, 2.0, 0.25, 1);    // left edge
-    addLine(750, 150, 1100, 150, 1.5, 0.20, 2);   // top
-    addLine(1100, 150, 1100, 750, 1.8, 0.22, 1.5); // right edge
-    addLine(750, 750, 1100, 750, 1.0, 0.15, 2.5);  // bottom
+    // Overshoot / construction lines
+    add(aL - 15, aTop, aL + 20, aTop, 0.3, 0.04);
+    add(aR - 10, aTop - 30, aR + 25, aTop - 30, 0.3, 0.04);
+    add(aL, aBot, aL, aBot + 12, 0.3, 0.04);
+    add(aR, aBot, aR, aBot + 12, 0.3, 0.04);
 
-    // Perspective depth
-    addLine(1100, 150, 1350, 250, 1.0, 0.12, 3);
-    addLine(1100, 750, 1350, 700, 0.8, 0.10, 3.5);
-    addLine(1350, 250, 1350, 700, 0.8, 0.12, 4);
+    // ════════════════════════════════════════════════
+    // BUILDING B — Center tower (tallest, glass curtain wall)
+    // ════════════════════════════════════════════════
+    const bL = 500, bR = 850, bTop = 120, bBot = 780;
+    add(bL, bBot, bL, bTop, 2.2, 0.25);
+    add(bR, bBot, bR, bTop + 10, 2.2, 0.25);
+    add(bL, bTop, bR, bTop + 10, 1.8, 0.20);
+    add(bL, bBot, bR, bBot, 1.0, 0.12);
+    // Roof overhang
+    add(bL - 15, bTop - 8, bR + 15, bTop + 2, 1.2, 0.15);
+    // Depth
+    toVP(bR, bTop + 10, 0.3, 1.2, 0.14);
+    toVP(bR, bBot, 0.25, 0.8, 0.10);
+    const bRd = bR + (vx - bR) * 0.3;
+    const bTd = bTop + 10 + (vy - bTop - 10) * 0.3;
+    const bBd = bBot + (vy - bBot) * 0.25;
+    add(bRd, bTd, bRd, bBd, 0.8, 0.10);
 
     // Floor lines
-    for (let i = 0; i < 5; i++) {
-      const y = 250 + i * 105;
-      addLine(750, y, 1100, y, 0.8, 0.12, 4 + rand() * 3);
-      addLine(1100, y, 1350, y + 15 + i * 3, 0.4, 0.07, 5 + rand() * 2);
-    }
-
-    // Windows
-    for (let row = 0; row < 5; row++) {
-      for (let col = 0; col < 3; col++) {
-        const wx = 790 + col * 100;
-        const wy = 170 + row * 105;
-        addLine(wx, wy, wx, wy + 70, 0.6, 0.10, 7 + rand() * 4);
-        addLine(wx, wy, wx + 60, wy, 0.5, 0.08, 7.5 + rand() * 4);
-        addLine(wx + 60, wy, wx + 60, wy + 70, 0.6, 0.10, 8 + rand() * 4);
+    for (let i = 0; i < 18; i++) {
+      const y = bTop + 20 + i * 37;
+      if (y > bBot - 5) break;
+      const isMain = i % 4 === 0;
+      add(bL, y, bR, y + 1, isMain ? 1.0 : 0.4, isMain ? 0.14 : 0.06);
+      // Depth
+      if (isMain) {
+        add(bR, y + 1, bRd, y + 1 + (vy - y) * 0.08, 0.5, 0.06);
       }
     }
 
-    // ─── GROUND / LANDSCAPE LINES ───
-    addLine(50, 750, 1800, 750, 1.5, 0.18, 0.5);
-    addLine(30, 760, 1850, 760, 0.6, 0.08, 1);
-    // Perspective ground lines
-    addLine(50, 750, vx - 200, vy + 200, 0.4, 0.06, 4);
-    addLine(1400, 750, vx + 200, vy + 200, 0.4, 0.06, 4.5);
-
-    // Ground hatching / texture
-    for (let i = 0; i < 12; i++) {
-      const sx = 100 + rand() * 1600;
-      addLine(sx, 755, sx + 40 + rand() * 80, 755 + rand() * 15, 0.3, 0.05, 8 + rand() * 5);
+    // Window verticals
+    for (let i = 0; i < 7; i++) {
+      const x = bL + 25 + i * 48;
+      add(x, bTop + 20, x, bBot, 0.5, 0.08);
+      // Every other gets a cross bar
+      if (i % 2 === 0) {
+        for (let j = 0; j < 8; j++) {
+          const wy = bTop + 40 + j * 75;
+          if (wy > bBot - 20) break;
+          add(x - 5, wy, x + 43, wy, 0.3, 0.05);
+        }
+      }
     }
 
-    // ─── CANOPY / ENTRANCE DETAIL ───
-    addLine(350, 740, 550, 740, 1.5, 0.18, 6);
-    addLine(350, 740, 350, 720, 1.0, 0.15, 6.5);
-    addLine(550, 740, 550, 720, 1.0, 0.15, 6.5);
-    addLine(340, 720, 560, 720, 1.2, 0.16, 7);
-    // Canopy perspective
-    addLine(560, 720, 650, 700, 0.6, 0.08, 7.5);
-    addLine(340, 720, 300, 710, 0.6, 0.08, 7.5);
+    // Entrance
+    add(bL + 100, bBot, bL + 100, bBot - 80, 1.2, 0.18);
+    add(bL + 230, bBot, bL + 230, bBot - 80, 1.2, 0.18);
+    add(bL + 95, bBot - 80, bL + 235, bBot - 80, 1.0, 0.16);
+    // Canopy
+    add(bL + 80, bBot - 90, bL + 250, bBot - 90, 1.5, 0.18);
+    toVP(bL + 250, bBot - 90, 0.08, 0.6, 0.08);
+    add(bL + 80, bBot - 90, bL + 60, bBot - 85, 0.5, 0.06);
 
-    // ─── LOOSE CONSTRUCTION LINES (perspective grid) ───
-    // These are the light "thinking" lines architects draw first
-    for (let i = 0; i < 15; i++) {
-      const startX = rand() * 300;
-      const startY = 200 + rand() * 600;
-      addLine(startX, startY, vx + (rand() - 0.5) * 200, vy + (rand() - 0.5) * 100, 0.2, 0.04, rand() * 3);
-    }
+    // ════════════════════════════════════════════════
+    // BUILDING C — Right block (stepped / cantilever)
+    // ════════════════════════════════════════════════
+    const cL = 870, cR = 1250, cTop = 200, cMid = 380, cBot = 780;
+    // Lower portion
+    add(cL, cBot, cL, cMid, 2.0, 0.22);
+    add(cR, cBot, cR, cMid, 2.0, 0.22);
+    add(cL, cMid, cR, cMid, 1.5, 0.18);
+    add(cL, cBot, cR, cBot, 1.0, 0.12);
+    // Upper setback
+    add(cL + 40, cMid, cL + 40, cTop, 1.8, 0.20);
+    add(cR - 30, cMid, cR - 30, cTop + 20, 1.8, 0.20);
+    add(cL + 40, cTop, cR - 30, cTop + 20, 1.5, 0.18);
+    // Cantilever overhang
+    add(cL + 20, cMid - 5, cR - 10, cMid - 5, 1.2, 0.15);
+    add(cL + 20, cMid - 5, cL + 20, cMid + 5, 0.5, 0.06);
+    add(cR - 10, cMid - 5, cR - 10, cMid + 5, 0.5, 0.06);
+
+    // Depth
+    toVP(cR, cMid, 0.2, 0.8, 0.10);
+    toVP(cR, cBot, 0.18, 0.6, 0.08);
+    toVP(cR - 30, cTop + 20, 0.22, 0.8, 0.10);
+
+    // Floor lines lower
     for (let i = 0; i < 10; i++) {
-      const startX = 1200 + rand() * 600;
-      const startY = 200 + rand() * 600;
-      addLine(startX, startY, vx + (rand() - 0.5) * 200, vy + (rand() - 0.5) * 100, 0.2, 0.04, rand() * 4);
+      const y = cMid + 20 + i * 40;
+      if (y > cBot - 5) break;
+      add(cL, y, cR, y, i % 3 === 0 ? 0.8 : 0.4, i % 3 === 0 ? 0.12 : 0.05);
+    }
+    // Floor lines upper
+    for (let i = 0; i < 5; i++) {
+      const y = cTop + 20 + i * 35;
+      if (y > cMid - 5) break;
+      add(cL + 40, y, cR - 30, y, 0.5, 0.07);
     }
 
-    // ─── SKY / CONTEXT LINES ───
-    // Faint horizontal lines suggesting sky/horizon
-    addLine(0, 200, 500, 195, 0.2, 0.03, 10);
-    addLine(1300, 180, 1900, 185, 0.2, 0.03, 11);
-    addLine(0, 100, 400, 105, 0.15, 0.025, 12);
+    // Windows lower
+    for (let i = 0; i < 8; i++) {
+      const x = cL + 25 + i * 48;
+      if (x > cR - 20) break;
+      add(x, cMid + 10, x, cBot, 0.4, 0.06);
+    }
+    // Windows upper
+    for (let i = 0; i < 5; i++) {
+      const x = cL + 60 + i * 48;
+      if (x > cR - 50) break;
+      add(x, cTop + 25, x, cMid - 10, 0.4, 0.06);
+    }
 
-    // ─── PEOPLE SILHOUETTES (simple lines) ───
-    // Figure 1
-    addLine(150, 750, 150, 715, 0.8, 0.12, 10);
-    addLine(145, 715, 155, 715, 0.5, 0.10, 10.5); // shoulders
-    addLine(150, 715, 150, 708, 0.6, 0.10, 10.5); // head
-    // Figure 2
-    addLine(1200, 750, 1200, 720, 0.7, 0.10, 11);
-    addLine(1195, 720, 1205, 720, 0.4, 0.08, 11.5);
-    // Figure 3
-    addLine(1250, 750, 1250, 718, 0.8, 0.12, 11);
-    addLine(1245, 718, 1255, 718, 0.5, 0.10, 11.5);
+    // ════════════════════════════════════════════════
+    // BUILDING D — Far right, smaller
+    // ════════════════════════════════════════════════
+    const dL = 1280, dR = 1550, dTop = 350, dBot = 780;
+    add(dL, dBot, dL, dTop, 1.5, 0.18);
+    add(dR, dBot, dR, dTop + 20, 1.5, 0.18);
+    add(dL, dTop, dR, dTop + 20, 1.2, 0.14);
+    add(dL, dBot, dR, dBot, 0.8, 0.10);
+    toVP(dR, dTop + 20, 0.15, 0.6, 0.08);
+    toVP(dR, dBot, 0.12, 0.5, 0.06);
 
-    // ─── TREES (abstract scribbles) ───
-    for (let t = 0; t < 3; t++) {
-      const tx = 1400 + t * 120;
-      addLine(tx, 750, tx, 680, 0.6, 0.10, 9 + rand() * 3);
-      // Canopy scribbles
-      for (let s = 0; s < 5; s++) {
-        const angle = rand() * Math.PI * 2;
-        const r = 15 + rand() * 25;
-        addLine(
-          tx + Math.cos(angle) * r * 0.3,
-          680 - 10 + Math.sin(angle) * r * 0.3,
-          tx + Math.cos(angle) * r,
-          680 - 10 + Math.sin(angle) * r,
-          0.3, 0.06, 10 + rand() * 3,
-        );
+    // Floors
+    for (let i = 0; i < 10; i++) {
+      const y = dTop + 25 + i * 42;
+      if (y > dBot - 5) break;
+      add(dL, y, dR, y + 1, i % 3 === 0 ? 0.7 : 0.3, i % 3 === 0 ? 0.10 : 0.04);
+    }
+    // Verticals
+    for (let i = 0; i < 5; i++) {
+      const x = dL + 30 + i * 55;
+      if (x > dR - 15) break;
+      add(x, dTop + 25, x, dBot, 0.4, 0.06);
+    }
+
+    // ════════════════════════════════════════════════
+    // GROUND PLANE
+    // ════════════════════════════════════════════════
+    add(0, 780, 1920, 780, 1.8, 0.20);
+    add(0, 785, 1920, 785, 0.5, 0.06);
+    // Perspective ground lines
+    for (let i = 0; i < 8; i++) {
+      const x = 100 + i * 220;
+      toVP(x, 780, 0.3 + rand() * 0.2, 0.3, 0.04);
+    }
+    // Pavement lines
+    add(50, 800, 1800, 800, 0.3, 0.04);
+    add(50, 830, 1800, 830, 0.2, 0.03);
+    // Cross hatching on ground
+    for (let i = 0; i < 20; i++) {
+      const x = 80 + i * 90;
+      add(x, 780, x + 15 + rand() * 30, 810, 0.2, 0.03);
+    }
+
+    // ════════════════════════════════════════════════
+    // CONSTRUCTION / PERSPECTIVE GUIDE LINES
+    // ════════════════════════════════════════════════
+    // Horizon line
+    add(0, vy, 1920, vy, 0.15, 0.025);
+    // Radial construction lines from VP
+    for (let i = 0; i < 12; i++) {
+      const angle = -Math.PI * 0.4 + i * (Math.PI * 0.8 / 11);
+      const ex = vx + Math.cos(angle) * 1500;
+      const ey = vy + Math.sin(angle) * 1500;
+      add(vx, vy, ex, ey, 0.15, 0.02);
+    }
+    // Vertical construction lines
+    for (let i = 0; i < 6; i++) {
+      const x = 200 + i * 280;
+      add(x, 50, x, 850, 0.12, 0.015);
+    }
+
+    // ════════════════════════════════════════════════
+    // CONNECTING ELEMENTS between buildings
+    // ════════════════════════════════════════════════
+    // Bridge / walkway B-C
+    add(bR, 400, cL, 400, 0.8, 0.10);
+    add(bR, 410, cL, 410, 0.8, 0.10);
+    add(bR, 400, bR, 410, 0.5, 0.06);
+    add(cL, 400, cL, 410, 0.5, 0.06);
+
+    // ════════════════════════════════════════════════
+    // PEOPLE (simple vertical + shoulder line)
+    // ════════════════════════════════════════════════
+    const people = [[120, 30], [300, 28], [650, 32], [1100, 26], [1350, 30], [1500, 28]];
+    for (const [px, ph] of people) {
+      add(px, 780, px, 780 - ph, 0.8, 0.12);
+      add(px - 4, 780 - ph + 3, px + 4, 780 - ph + 3, 0.5, 0.08);
+      add(px, 780 - ph, px, 780 - ph - 3, 0.4, 0.08); // head
+    }
+
+    // ════════════════════════════════════════════════
+    // TREES
+    // ════════════════════════════════════════════════
+    const trees = [50, 1600, 1700, 1800];
+    for (const tx of trees) {
+      add(tx, 780, tx, 730, 0.6, 0.08);
+      // Crown lines
+      for (let j = 0; j < 6; j++) {
+        const a = -Math.PI * 0.8 + j * (Math.PI * 1.6 / 5);
+        const r = 15 + rand() * 10;
+        add(tx, 730, tx + Math.cos(a) * r, 730 + Math.sin(a) * r - 5, 0.3, 0.05);
       }
+    }
+
+    // ════════════════════════════════════════════════
+    // EXTRA DETAIL: balcony railings, facade textures
+    // ════════════════════════════════════════════════
+    // Building A — horizontal shading lines (glass reflection)
+    for (let i = 0; i < 25; i++) {
+      const y = aTop + 15 + i * 22;
+      if (y > aBot - 10) break;
+      const x1 = aL + 5 + rand() * 50;
+      const x2 = x1 + 80 + rand() * 200;
+      add(x1, y, Math.min(x2, aR - 5), y, 0.2, 0.03);
+    }
+
+    // Building B — vertical accent lines (structural)
+    for (let i = 0; i < 4; i++) {
+      const x = bL + 80 + i * 90;
+      add(x, bTop + 15, x, bBot, 0.8, 0.10);
+      add(x + 2, bTop + 15, x + 2, bBot, 0.3, 0.04);
+    }
+
+    // Building C — balcony shadows
+    for (let i = 0; i < 8; i++) {
+      const y = cMid + 25 + i * 50;
+      if (y > cBot - 10) break;
+      add(cL, y, cL + 15, y + 8, 0.3, 0.04);
+      add(cR - 15, y, cR, y + 8, 0.3, 0.04);
+    }
+
+    // Random accent overshoots on all buildings
+    for (let i = 0; i < 30; i++) {
+      const x = 100 + rand() * 1400;
+      const y = 150 + rand() * 600;
+      const len = 20 + rand() * 60;
+      const angle = rand() > 0.6 ? 0 : Math.PI / 2; // horizontal or vertical
+      add(x, y, x + Math.cos(angle) * len, y + Math.sin(angle) * len, 0.2, 0.03);
+    }
+
+    // ════════════════════════════════════════════════
+    // SHUFFLE delays: spread across 5 seconds
+    // ════════════════════════════════════════════════
+    const totalTime = 5.0;
+    const indices = Array.from({ length: result.length }, (_, i) => i);
+    // Shuffle indices
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    // Assign delays based on shuffled position
+    for (let pos = 0; pos < indices.length; pos++) {
+      const idx = indices[pos];
+      const t = (pos / indices.length) * totalTime;
+      result[idx].delay = t;
+      // Speed: thicker lines draw slower
+      const len = Math.sqrt((result[idx].x2 - result[idx].x1) ** 2 + (result[idx].y2 - result[idx].y1) ** 2);
+      result[idx].speed = 0.3 + (len / 1500) * 1.2;
     }
 
     return result;
   }, []);
-
-  // Generate hand-drawn path for each line
-  const handPath = (x1: number, y1: number, x2: number, y2: number, seed: number) => {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    if (len < 2) return { d: `M ${x1} ${y1} L ${x2} ${y2}`, len: 2 };
-
-    const steps = Math.max(2, Math.floor(len / 30));
-    const pts: string[] = [`M ${x1.toFixed(1)} ${y1.toFixed(1)}`];
-
-    for (let i = 1; i <= steps; i++) {
-      const t = i / steps;
-      const wobble = Math.sin(seed * 7.3 + i * 4.1) * 1.5 + Math.cos(seed * 11 + i * 2.7) * 0.7;
-      const nx = -dy / len * wobble;
-      const ny = dx / len * wobble;
-      pts.push(`L ${(x1 + dx * t + nx).toFixed(1)} ${(y1 + dy * t + ny).toFixed(1)}`);
-    }
-
-    return { d: pts.join(' '), len: Math.ceil(len * 1.03) };
-  };
 
   return (
     <svg
@@ -248,21 +337,20 @@ export default function HeroBlueprintFull() {
       preserveAspectRatio="xMidYMid slice"
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     >
-      {lines.map((line, i) => {
-        const { d, len } = handPath(line.x1, line.y1, line.x2, line.y2, i * 7 + 13);
+      {lines.map((l, i) => {
+        const len = Math.ceil(Math.sqrt((l.x2 - l.x1) ** 2 + (l.y2 - l.y1) ** 2));
         return (
-          <path
+          <line
             key={i}
-            d={d}
-            fill="none"
-            stroke={`rgba(15,15,13,${line.o.toFixed(3)})`}
-            strokeWidth={line.w}
+            x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+            stroke={`rgba(15,15,13,${l.o.toFixed(3)})`}
+            strokeWidth={l.w}
             strokeLinecap="round"
             className="bp-line"
             style={{
-              '--bp-len': len,
-              '--bp-delay': `${line.delay.toFixed(2)}s`,
-              '--bp-draw-speed': `${line.speed.toFixed(2)}s`,
+              '--bp-len': len || 1,
+              '--bp-delay': `${l.delay.toFixed(2)}s`,
+              '--bp-draw-speed': `${l.speed.toFixed(2)}s`,
             } as React.CSSProperties}
           />
         );
